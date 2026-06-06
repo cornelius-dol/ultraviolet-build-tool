@@ -1,0 +1,18 @@
+{
+"lint" : {
+    "rules": {
+        "tags": [],
+        "include": [
+            "default-param-last",
+            "no-const-assign",
+            "no-deprecated-deno-api"
+            "no-eval",
+            "no-non-null-asserted-optional-chain",
+            "no-non-null-assertion",
+            "no-sparse-arrays",
+            "no-throw-literal",
+            "triple-slash-reference",
+            ]
+        }
+    }
+}

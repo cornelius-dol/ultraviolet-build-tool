@@ -1,0 +1,4 @@
+Project Version:
+
+    VERSION = "1.00" /*2026.0607.0002*/
+    BUILD   = "2026.0607.0002"

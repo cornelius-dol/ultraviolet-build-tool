@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+    <title>Ultraviolet Build Tool</title>
+    <meta charset="utf-8">
+    <meta name="author" content="">
+    <link rel="stylesheet" type="text/css" href="style.css" media="screen,print">
+    <style>
+        body.inside-iframe :is(header, footer) {
+            display: none;
+            }
+    </style>
+</head>
+
+<body class="doc">
+    <script>
+        let body    = document.querySelector("body");
+        if(window.parent !== window) {
+            body.classList.add('inside-iframe');
+            }
+    </script>
+
+    <header>
+        <div class="title"><a href="index.html">Ultraviolet Build Tool</a></div>
+        <div class="subtitle">Developer Documentation</div>
+        <div class="subtext">Version 1.00, Produced 2026-06-07</div>
+        <div class="page-links"><span title="Previous Page (Arrow Left)"><a class='prev' href='+BDD.html'>prev</a></span> <span title="Next Page (Arrow Right)"><a class='next' href='Litmus.html'>next</a></span></div>
+    </header>
+
+    <main id="dgc">
+        <article class="doc">
+<h1 id="test-environment">Test Environment</h1><p>This is a simple wrapper around the environment access to try to limit dependence on the JSVM to this one place.</p><p><span class="status-stable">Module Status: </span></p>
+<h2 id="api">API</h2>
+<h3 id="function-exitengine-stscod">exitEngine(stscod)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Exit the JS engine.</p>
+<pre><code>stscod          Integer execution status code. 0=Success, 1+ is an error code. Permitted range is O/S dependent.
+=&gt;              This function does not return.
+</code></pre>
+<h3 id="function-createmodule-pthorurl-args">createModule(pthOrUrl, ...args)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Create an instance of a module loaded from a URL or the file system.</p>
+<pre><code>pthOrUrl        File system path or URL for script.
+=&gt;              undefined.
+</code></pre>
+<h3 id="function-loadmodule-pthorurl">loadModule(pthOrUrl)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Load a function module instance from a URL or the file system.</p>
+<pre><code>pthOrUrl        File system path or URL for script.
+=&gt;              undefined.
+</code></pre>
+<h3 id="function-loadfile-pthorurl">loadFile(pthOrUrl)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Load a file from a URL or the file system.</p>
+<pre><code>pthOrUrl        File system path or URL for script.
+=&gt;              The text of the file.
+</code></pre>
+</article>
+
+    </main>
+
+    <footer>
+        <div class="subtext">Copyright , All Rights Reserved</div>
+        <div class="page-links"><span title="Previous Page (Arrow Left)"><a class='prev' href='+BDD.html'>prev</a></span> | <a href="">top</a> | <a href="index.html">index</a> | <span title="Next Page (Arrow Right)"><a class='next' href='Litmus.html'>next</a></span></div>
+    </footer>
+
+    <script>
+        setTimeout(() => {
+            document.querySelector("#dgc")?.focus();
+            },100);
+        document.onkeydown = (evt) => {
+            if(!evt.altKey && !evt.ctrlKey && !evt.metaKey && !evt.shiftKey) {
+                switch(evt.key) {
+                    case "ArrowLeft" : {
+                        let elm = document.querySelector("header .page-links .prev");
+                        if(elm) { location.href = elm.href; }
+                        evt.preventDefault();
+                        } break;
+                    case "ArrowRight" : {
+                        let elm = document.querySelector("header .page-links .next");
+                        if(elm) { location.href = elm.href; }
+                        evt.preventDefault();
+                        } break;
+                    }
+                }
+            };
+    </script>
+</body>
+</html>

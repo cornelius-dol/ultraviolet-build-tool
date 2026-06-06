@@ -1,0 +1,205 @@
+<!doctype html>
+<html>
+<head>
+    <title>Ultraviolet Build Tool</title>
+    <meta charset="utf-8">
+    <meta name="author" content="">
+    <link rel="stylesheet" type="text/css" href="style.css" media="screen,print">
+    <style>
+        body.inside-iframe :is(header, footer) {
+            display: none;
+            }
+    </style>
+</head>
+
+<body class="doc">
+    <script>
+        let body    = document.querySelector("body");
+        if(window.parent !== window) {
+            body.classList.add('inside-iframe');
+            }
+    </script>
+
+    <header>
+        <div class="title"><a href="index.html">Ultraviolet Build Tool</a></div>
+        <div class="subtitle">Developer Documentation</div>
+        <div class="subtext">Version 1.00, Produced 2026-06-07</div>
+        <div class="page-links"><span title="Previous Page (Arrow Left)"><a class='prev' href='BddEnv.html'>prev</a></span> <span title="Next Page (Arrow Right)"><a class='next' href='+UTL.html'>next</a></span></div>
+    </header>
+
+    <main id="dgc">
+        <article class="doc">
+<h1 id="litmus-test-execution-module">Litmus (Test Execution Module)</h1><p>A light-weight module for declaratively describing and running tests on JavaScript code.</p><p><span class="status-stable">Module Status: </span></p><h4 id="arguments">Arguments:</h4>
+<pre><code>config          Configuration parameters. Will be deep frozen.
+</code></pre><h4 id="config">Config:</h4>
+<pre><code>failText        Text value to emit before the description of the error for a failing test.
+failFast        Whether to exit the JSVM at the end of a batch with failing tests.
+outputPass      Whether to emit passing test descriptions.
+diag            Whether to emit diagnostic detail *about* the tests, and emits stack traces for exceptions.
+</code></pre><p>Failing tests must throw an exception. Testing for an exception which is expected can be done with <a href="#function-fails">fails</a>.</p><p>If the use of Litmus is itself invalid, a LitmusError is thrown (type is LitmusError).</p><p>Each test <strong>MUST</strong> be individually runnable in parallel. Eventually support for doing parallel execution will be implemented whereby the test output will be collated and emitted in the defined order, but <a href="#function-batch">batch</a> will execute all test cases concurrently. This may or may not be opt-in.</p><p>Note that some special type names are employed in this code for flexibility:</p>
+<ul>
+  <li><code>&lt;container&gt;</code> indicates any object of type <code>array</code> or <code>struct</code> (a basic JS container).</li>
+  <li><code>&lt;function&gt;</code> indicates any function.</li>
+  <li><code>&lt;object&gt;</code> indicates any JS object, that is <code>struct</code> or an &ldquo;OO&rdquo; or prototypical object.</li>
+</ul><p>Example Test Batch:</p>
+<pre><code>test.batch(&quot;A Litmus test batch consists of a nested structure&quot;,{
+    &quot;NOTE 1&quot;: &quot;This batch has &quot;+expFailed+&quot; deliberate failures to visually confirm that failures are reported correctly.&quot;,
+    &quot;NOTE 2&quot;: &quot;Notes are specified with string values.&quot;,
+    &quot;Object values are recursed and objects can be nested to any level for grouping and readability&quot;: {
+        &quot;Function values are executed as tests&quot;: {
+            &quot;The first function&quot;                            : (log) =&gt; {},
+            &quot;The second function&quot;                           : (log) =&gt; {},
+            &quot;The third function&quot;                            : (log) =&gt; {},
+            &quot;The fourth function&quot;                           : (log) =&gt; {},
+            },
+        },
+    &quot;These tests fail to ensure the primary test structure is correctly validated&quot;: {
+        &quot;A test fails if it throws an exception&quot;            : () =&gt; { throw  &quot;This failure is expected!&quot;;       },
+        &quot;A test fails if it does not return undefined&quot;      : () =&gt; { return &quot;This should&#39;ve been &lt;undefined&gt;&quot;; },
+        &quot;Empty groups are considered a failure.&quot;: {
+            },
+        &quot;Descriptions must not be blank&quot;: {
+            &quot;&quot;                                              : () =&gt; {},
+            },
+        },
+    &quot;These tests fail so the error messages can be visually verified&quot;: {
+        &quot;Invoke fails() with no args&quot;                       : () =&gt; { test.fails(); },
+        &quot;Invoke fails() with 1 arg&quot;                         : () =&gt; { test.fails(1); },
+        &quot;Invoke fails() with 2 args&quot;                        : () =&gt; { test.fails(1,2); },
+        &quot;Invoke fails() with 2 args, first invalid&quot;         : () =&gt; { test.fails(1,Error); },
+        &quot;Invoke fails() with 2 args, second invalid&quot;        : () =&gt; { test.fails(&quot;Error&quot;,2); },
+        &quot;Invoke objEQ()&quot;                                    : () =&gt; { test.objEQ({ a:1, b:[2,3,4], c:{ e:[&quot;6&quot;,&quot;7&quot;] }}
+                                                                                ,{ g:1, h:[2,3,4], i:{ k:[&quot;6&quot;,&quot;7&quot;] }},&quot;test is annotated with a note&quot;); },
+        &quot;Invoke typeEQ()&quot;                                   : () =&gt; { test.typeEQ([],{},&quot;test is annotated with a note&quot;); },
+        &quot;Invoke valEQ()&quot;                                    : () =&gt; { test.valEQ(1,2   ,&quot;test is annotated with a note&quot;); },
+        &quot;Invoke valNE()&quot;                                    : () =&gt; { test.valNE(1,1   ,&quot;test is annotated with a note&quot;); },
+        &quot;Invoke valLT()&quot;                                    : () =&gt; { test.valLT(1,1   ,&quot;test is annotated with a note&quot;); },
+        &quot;Invoke valLE()&quot;                                    : () =&gt; { test.valLE(2,1   ,&quot;test is annotated with a note&quot;); },
+        &quot;Invoke valGT()&quot;                                    : () =&gt; { test.valGT(1,1   ,&quot;test is annotated with a note&quot;); },
+        &quot;Invoke valGE()&quot;                                    : () =&gt; { test.valGE(1,2   ,&quot;test is annotated with a note&quot;); },
+        },
+    },true);
+</code></pre>
+<h2 id="general-api">General API</h2>
+<h3 id="function-batch-nam-tsts-outpas-faifas">batch(nam,tsts,outpas,faifas)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Run a test batch. A batch is a simple nested structure, each value can be a string, nested object, or test function.</p>
+<pre><code>nam             Name of test batch. Required.
+tsts            Object of tests, as a hierarchical map of labeled subobjects and functions.
+outpas          Batch-level override for outputting pass results. Typically used only while writing a test batch.
+faifst          Batch-level override for failing fast. Typically used only while writing a test batch.
+=&gt;              True if all tests passed, else false.
+</code></pre><p>A test function is executed and it must either throw an exception or return <code>undefined</code>. A return value of any kind is a failure and will be logged (this makes it easy to write an initially failing test). Failing tests are logged using their key as a descriptor along with the exception text.</p>
+<h3 id="function-totalpassed">totalPassed()<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Return the total tests passed of all tests run since module was created.</p>
+<pre><code>=&gt;              Count of all tests passed.
+</code></pre>
+<h3 id="function-totalfailed">totalFailed()<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Return the total tests failed of all tests run since module was created.</p>
+<pre><code>=&gt;              Count of all tests failed.
+</code></pre>
+<h3 id="function-logtotals-add">logTotals(...add)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Log the totals in a standard format.</p>
+<pre><code>add...          Any text arguments to log in addition.
+</code></pre>
+<h2 id="assertion-api">Assertion API</h2>
+<h3 id="function-fails-rqdnam-fnc-args">fails(rqdnam,fnc,...args)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Ensure that a function fails by throwing the specified exception. Note that this expects an exact match for the exception; it does not traverse the prototype hierarchicy. Use this to verify exceptions are thrown as expected.</p>
+<pre><code>rqdnam          Name of the required exception. Required.
+fnc             Function to test. Required.
+...args         Arguments to pass to `fnc`. Optional.
+=&gt;              An error message or `undefined`.
+</code></pre><p>Coded exceptions are supported. These are identified as having a non-Object constructor and an code property. The format for <code>rqdnam</code> is <code>&quot;ExceptionName[Code]&quot;</code>. For example, <code>&quot;LitmusError[IncorrectResult]&quot;</code>. Specifying the code is optional.</p><p>Throws LitmusError with code:</p>
+<pre><code>NotFunction
+NotString
+BadArgCount
+DidNotThrow
+IncorrectException
+</code></pre>
+<h3 id="function-objeq-rqdval-tstval-annotn">objEQ(rqdval,tstval,annotn)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Ensure that the own keys and values of a test result or array are strictly equal to the supplied object (recursively).</p>
+<pre><code>rqdval          The check value specified by the test code.
+tstval          The result from the code under test.
+=&gt;              `undefined`.
+</code></pre>
+<h3 id="function-typeeq-rqdval-tstval-annotn">typeEQ(rqdval,tstval,annotn)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Ensure that two values have equal types.</p>
+<pre><code>rqdval          The check value specified by the test code.
+tstval          The result from the code under test.
+=&gt;              `undefined`.
+</code></pre>
+<h3 id="function-valbtw-rqdlow-rqdhgh-tstval-annotn">valBTW(rqdlow,rqdhgh,tstval,annotn)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Check a test value is strictly between the supplied high/low values (inclusively).</p>
+<pre><code>rqdlow          The low value for test range specified by the test code.
+rqdhgh          The high value for test range specified by the test code.
+tstval          The result from the code under test.
+=&gt;              `undefined`.
+</code></pre>
+<h3 id="function-valeq-rqdval-tstval-annotn">valEQ(rqdval,tstval,annotn)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Check a result value is strictly equal to the supplied value.</p>
+<pre><code>rqdval          The check value specified by the test code. This can be a `RegExp`; if so the second value is
+                coerced to a String.
+tstval          The result from the code under test.
+=&gt;              `undefined`.
+</code></pre>
+<h3 id="function-valne-rqdval-tstval-annotn">valNE(rqdval,tstval,annotn)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Check a result value is strictly not equal to the supplied value.</p>
+<pre><code>rqdval          The check value specified by the test code.
+tstval          The result from the code under test.
+=&gt;              `undefined`.
+</code></pre>
+<h3 id="function-vallt-rqdval-tstval-annotn">valLT(rqdval,tstval,annotn)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Check a result value is strictly less-than.</p>
+<pre><code>rqdval          The check value specified by the test code.
+tstval          The result from the code under test.
+=&gt;              `undefined`.
+</code></pre>
+<h3 id="function-valle-rqdval-tstval-annotn">valLE(rqdval,tstval,annotn)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Check a result value is strictly less-than or equal.</p>
+<pre><code>rqdval          The check value specified by the test code.
+tstval          The result from the code under test.
+=&gt;              `undefined`.
+</code></pre>
+<h3 id="function-valgt-rqdval-tstval-annotn">valGT(rqdval,tstval,annotn)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Check a result value is strictly greater-than.</p>
+<pre><code>rqdval          The check value specified by the test code.
+tstval          The result from the code under test.
+=&gt;              `undefined`.
+</code></pre>
+<h3 id="function-valge-rqdval-tstval-annotn">valGE(rqdval,tstval,annotn)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Check a result value is strictly greater-than or equal.</p>
+<pre><code>rqdval          The check value specified by the test code.
+tstval          The result from the code under test.
+=&gt;              `undefined`.
+</code></pre>
+</article>
+
+    </main>
+
+    <footer>
+        <div class="subtext">Copyright , All Rights Reserved</div>
+        <div class="page-links"><span title="Previous Page (Arrow Left)"><a class='prev' href='BddEnv.html'>prev</a></span> | <a href="">top</a> | <a href="index.html">index</a> | <span title="Next Page (Arrow Right)"><a class='next' href='+UTL.html'>next</a></span></div>
+    </footer>
+
+    <script>
+        setTimeout(() => {
+            document.querySelector("#dgc")?.focus();
+            },100);
+        document.onkeydown = (evt) => {
+            if(!evt.altKey && !evt.ctrlKey && !evt.metaKey && !evt.shiftKey) {
+                switch(evt.key) {
+                    case "ArrowLeft" : {
+                        let elm = document.querySelector("header .page-links .prev");
+                        if(elm) { location.href = elm.href; }
+                        evt.preventDefault();
+                        } break;
+                    case "ArrowRight" : {
+                        let elm = document.querySelector("header .page-links .next");
+                        if(elm) { location.href = elm.href; }
+                        evt.preventDefault();
+                        } break;
+                    }
+                }
+            };
+    </script>
+</body>
+</html>

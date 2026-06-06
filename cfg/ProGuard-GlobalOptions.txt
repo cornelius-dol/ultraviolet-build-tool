@@ -1,0 +1,87 @@
+# ----------------------------------------------------------------------------------------------------------------------
+# GENERAL SETTINGS
+# ----------------------------------------------------------------------------------------------------------------------
+
+  -adaptclassstrings
+  -dontoptimize
+  -dontusemixedcaseclassnames
+  -forceprocessing
+
+  -keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable
+
+  -libraryjars <JDKFDR>/jmods/java.base.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.datatransfer.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.desktop.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.logging.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.management.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.naming.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.net.http.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.prefs.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.security.jgss.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.security.sasl.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.smartcardio.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.sql.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.sql.rowset.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.transaction.xa.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.xml.crypto.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.xml.jmod(!**.jar;!module-info.class)
+
+  -dontnote module-info
+  -dontwarn javax.annotation.**
+
+# ----------------------------------------------------------------------------------------------------------------------
+# KEEP: ALREADY OBFUSCATED CODE
+# ----------------------------------------------------------------------------------------------------------------------
+
+  -keep class *_.**            { *** *; *** *(...); }                                                                   # already obfuscated code from a library JAR
+  -keep class _*.**            { *** *; *** *(...); }                                                                   # already obfuscated code from a library JAR
+  -keep class _*_.**           { *** *; *** *(...); }                                                                   # already obfuscated code from a library JAR
+
+  -dontnote   *_.**
+  -dontnote   _*.**
+  -dontnote   _*_.**
+
+# ----------------------------------------------------------------------------------------------------------------------
+# KEEP: DYNAMIC CALLBACKS
+# ----------------------------------------------------------------------------------------------------------------------
+
+  -keepclassmembernames,includedescriptorclasses class * {
+      public *** cbk_*(...);                                                                                            # new convention
+      public *** callback_*(...);                                                                                       # old convention
+      }
+
+# ----------------------------------------------------------------------------------------------------------------------
+# KEEP: SPECIAL KEEPER INTERFACES
+# ----------------------------------------------------------------------------------------------------------------------
+
+  -keep,allowobfuscation                    class **.ProguardKeep_Class
+  -dontnote                                       **.ProguardKeep_Class
+  -keep,allowobfuscation                    class **.ProguardKeep_SFI
+  -dontnote                                       **.ProguardKeep_SFI
+
+  -keep,allowobfuscation class * implements **.ProguardKeep_Class {
+      # Implementing this interface causes the class to be kept during shrinking while it's name is still obfuscated.
+      # Provided the class is reflected using Class.forName("<literal>"), the obfuscation is applied to the literal
+      # and nothing further is required.
+      !private *;
+      }
+
+  -keepclassmembers class * implements **.ProguardKeep_SFI {
+      # Implementing this interface causes the class's static final integer values to be kept. This allows CodeTextMap and
+      # TextCodeMap to operate on a class which is otherwise obfuscated.
+      static final  int                       ?_*;
+      static final  int                       ??_*;
+      static final  int                       ???_*;
+      static public java.lang.Object          getStaticFinalValue(java.lang.reflect.Field);
+      }
+
+# ----------------------------------------------------------------------------------------------------------------------
+# KEEP: JAVA ENUMERATION MEMBERS, WHICH ARE ALWAYS ACCESSED BY REFLECTION
+# ----------------------------------------------------------------------------------------------------------------------
+
+  -keepclassmembers class * extends java.lang.Enum {
+      public static **[] values();
+      public static ** valueOf(java.lang.String);
+      }
+
+# ----------------------------------------------------------------------------------------------------------------------

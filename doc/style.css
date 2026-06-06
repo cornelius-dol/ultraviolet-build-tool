@@ -1,0 +1,157 @@
+/* SHARED STYLES ******************************************************************************************************/
+
+:root {
+    --color-flair           : #335;
+    --color-hover           : #F60;
+    --color-index-bg        : #223;
+    --color-link            : #DA6;
+    --color-page-bg         : #10101C;
+    --color-page-fg         : #DDD;
+    --page-width            : none;
+    --text-align            : justify;
+    }
+
+* {
+    box-sizing              : border-box;
+    }
+
+body {
+    display: grid;
+    grid-template           : "hdr" auto
+                              "bdy" 1fr
+                              "ftr" auto /
+                              1fr;
+    align-content           : stretch;
+    justify-content         : stretch;
+    max-width               : 100vw;
+    height                  : 100vh;
+    max-height              : 100vh;
+    grid-gap                : 0;
+    }
+body header                 { grid-area: hdr; }
+body main#dgc               { grid-area: bdy; }
+body footer                 { grid-area: ftr; }
+
+body                        { background: var(--color-page-bg); color: var(--color-page-fg); font-family: sans-serif; font-size: 100%; line-height: 1.50em; margin: 0 auto; padding: 0; }
+
+a                           { padding:2px; text-decoration:none; border-radius:5px; color:var(--color-link); }
+a:hover                     { cursor:pointer; color:var(--color-hover); }
+
+h1,h2,h3,h4,h5,h6           { padding:0.50em 10px; color:#EEE; margin:1em -10px; }
+h1,h4                       { font-size:1.50em; font-weight: bold; text-align:center; }
+h2,h5                       { font-size:1.30em; font-weight: bold; }
+h3,h6                       { font-size:1.10em; font-weight: bold; }
+header                      { border-radius:0.25em; margin:0; padding:0.33em 15px; text-align:center; background-color:var(--color-flair); z-index:1; }
+header                      { box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px; }
+header div                  { margin:0.5em; }
+header .title               { font-size:1.30em; font-weight:bold; }
+header .subtitle            { font-size:0.90em; font-weight:bold; }
+header .subtext             { color:#999; font-size:0.80em; font-weight:normal; }
+header .page-links          { display:flex; justify-content:space-between; margin-top:-2em; }
+
+footer                      { color:#888; border-top:1px dashed #CCC; margin:0; padding:0.25em; text-align:center; }
+footer .subtext             { color:#888; font-size:0.80em; font-weight:normal; }
+
+main                        { overflow: auto; }
+main:focus                  { outline: none;  }
+
+article                     { padding:0 20px; overflow:auto; margin-left:auto; margin-right:auto; max-width:var(--page-width); }
+
+section + section           { margin-top: 1em; }
+
+div.table                   { margin:1em 0 1em 2em; }
+table                       { border-collapse:collapse; border-radius:0.25em; empty-cells:show; width:100%; overflow:clip; }
+table th                    { background-color:#4456; color:#FFF; padding:2px 5px; font-size:1.05em; font-weight:bold; text-align:left; vertical-align:top; }
+table th:first-child        { width:20em; }
+table td                    { background-color:#3346; color:#DDD; padding:1px 5px; font-weight:normal; text-align:left; vertical-align:top; }
+table td:first-child        { font-family:monospace; vertical-align:baseline; white-space:pre; min-width:20% }
+blockquote                  { margin-left: 2em; }
+pre                         { background-color:#3346; border-radius:0.25em; color:#DDD; font-family:monospace; line-height:1.20em; margin-left:2em; padding:0.50em; max-height:50em; overflow:auto; }
+:NOT(pre) > code            { background-color:transparent; border-radius:0.25em; color:#BBE; padding:3px 3px 1px 3px; }
+
+.page-links a               { font-variant:small-caps; }
+:is(h1,h2,h3,h4,h5,h6) code { background-color:transparent; color:inherit; font-size:inherit; padding:0; }
+
+/* -- INDEX STYLES -- */
+
+body.idx h1:first-of-type   { margin-bottom: 0.25em; text-align:left; border-radius:0.25em; color:#EEE;  background-color:var(--color-flair); }
+body.idx h1                 { margin:0 0 0      0;   text-align:left;                       color:#EEE;  background-color:transparent; }
+body.idx h2                 { margin:0 0 0      1em; text-align:left; font-weight: normal; font-size: 1em; background-color:transparent; }
+body.idx h3                 { margin:0 0 0      2em; text-align:left; font-weight: normal; font-size: 1em; background-color:transparent; }
+body.idx h4                 { margin:0 0 0      3em; text-align:left; font-weight: normal; font-size: 1em; background-color:transparent; }
+body.idx h5                 { margin:0 0 0      4em; text-align:left; font-weight: normal; font-size: 1em; background-color:transparent; }
+body.idx h6                 { margin:0 0 0      5em; text-align:left; font-weight: normal; font-size: 1em; background-color:transparent; }
+body.idx a                  { color:inherit; }
+
+/* -- DOCUMENT STYLES -- */
+
+body.doc #root-index        { position:absolute; top:0; left:0; height: 100%; width:300px; margin:0; padding:0; border:none; }
+
+body.doc h1:first-child     { margin-top: 0;    padding-top:0;   border-top:none;                         }
+body.doc :is(h1,h4)         {                   padding-top:2em; border-top:solid 7px var(--color-flair); }
+body.doc :is(h2,h5)         { border-radius:0.25em; background-color:var(--color-flair); }
+
+body.doc :is(h1,h2,h3,h4,h5,h6) a { float:right; font-size:small; font-weight:normal; vertical-align:middle; }
+
+body.doc :is(h1,h2,h3,h4,h5,h6) a + a:after { content:" | " }
+
+body.doc p                  { text-align:var(--text-align); }
+
+body.doc a.prev             { float:left;  font-weight:normal; }
+body.doc a.next             { float:right; font-weight:normal; }
+
+/* ALL-IN-ONE OVERRIDES ***********************************************************************************************/
+
+body.all-in-one {
+    grid-template:
+        "hdr                    hdr" auto
+        "idx                    bdy" 1fr
+        "ftr                    ftr" auto /
+        20vw 1fr;
+    grid-gap                : 1em 0;
+    padding                 : 0;
+    overflow                : clip auto;
+    }
+
+body.all-in-one header {
+    border-radius           : 0;
+    }
+
+body.inside-iframe :is(h1,h2,h3,h4,h5,h6) > :is(a, a:after) {
+    display                 : none;
+    }
+
+body.all-in-one article.idx {
+    background-color        : var(--color-index-bg);
+    }
+
+body.all-in-one.idx :is(h1,h2,h3,h4,h5,h6) {
+    border-radius           : 0;
+    font-size               : 0.80rem;
+    font-weight             : normal;
+    padding                 : 0 0.5em 0.10em;
+    }
+
+/* API STATUS BADGES **************************************************************************************************/
+
+.status-deprecated      , .status-experimental      , .status-locked      , .status-stable      , .status-unstable       { font-weight:bold; }
+.status-deprecated:after, .status-experimental:after, .status-locked:after, .status-stable:after, .status-unstable:after { border-radius:0.25em; color:#FFFFFF; font-style:sans-serif; font-variant-caps:all-small-caps; font-weight:bold; padding: 0 5px 2px; }
+
+.status-deprecated:after    { content: "deprecated";     background-color:#D60027; }
+.status-experimental:after  { content: "experimental";   background-color:#F0C020; }
+.status-locked:after        { content: "locked";         background-color:#0084B6; }
+.status-stable:after        { content: "stable";         background-color:#4EBA0F; }
+.status-unstable:after      { content: "unstable";       background-color:#F06015; }
+
+/* PRINT OVERRIDE STYLES **********************************************************************************************/
+
+@media print {
+  @page                     { size:landscape }
+  body                      { font-size:10pt; }
+  a                         { color:inherit }
+  a[href="#top"]            { display:none; }
+  a[href$="index.html"] { display:none; }
+  footer                    { page-break-inside:avoid; }
+  pre                       { font-size:8pt; white-space:pre-wrap; }
+  .links                    { display:none; }
+  }

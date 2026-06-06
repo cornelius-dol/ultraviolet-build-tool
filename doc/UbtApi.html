@@ -1,0 +1,1286 @@
+<!doctype html>
+<html>
+<head>
+    <title>Ultraviolet Build Tool</title>
+    <meta charset="utf-8">
+    <meta name="author" content="">
+    <link rel="stylesheet" type="text/css" href="style.css" media="screen,print">
+    <style>
+        body.inside-iframe :is(header, footer) {
+            display: none;
+            }
+    </style>
+</head>
+
+<body class="doc">
+    <script>
+        let body    = document.querySelector("body");
+        if(window.parent !== window) {
+            body.classList.add('inside-iframe');
+            }
+    </script>
+
+    <header>
+        <div class="title"><a href="index.html">Ultraviolet Build Tool</a></div>
+        <div class="subtitle">Developer Documentation</div>
+        <div class="subtext">Version 1.00, Produced 2026-06-07</div>
+        <div class="page-links"><span title="Previous Page (Arrow Left)"><a class='prev' href='+UBT.html'>prev</a></span> <span title="Next Page (Arrow Right)"><a class='next' href='UbtEngine.html'>next</a></span></div>
+    </header>
+
+    <main id="dgc">
+        <article class="doc">
+<h1 id="build-support-api">Build Support API</h1><p>The build API provides all functions needed by a build script to compile and package a project.</p><p>The purpose of the functions provided herein is to simplify common build actions and protect projects from any specifics on the JavaScript runtime. Developers should feel free to offer suggestions for commonly needed functions in order to save work in other projects. For a submission to have the best chance of being accepted, the developer should create a function as needed by their build, and attempt to define it in such a way that it is well designed for general use.</p><p><span class="status-stable">Module Status: </span></p>
+<h2 id="async-build-operations">Async Build Operations</h2>
+<h3 id="function-compilejava-srcfils-opts">async compileJava(srcfils,opts={})<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Compile one or more Java sources.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>srcfils </td>
+      <td>Single or array of <code>String</code> or <code>FsInfo</code> specifying source files to compile.</td>
+    </tr>
+    <tr>
+      <td colspan="2">opts { </td>
+    </tr>
+    <tr>
+      <td>. jdkArgs </td>
+      <td>Arguments for the JDK&rsquo;s compiler. Default: <code>ctx.jdkArgs</code>.</td>
+    </tr>
+    <tr>
+      <td>. jdkFolder </td>
+      <td>Folder for the JDK. Default: <code>ctx.jdkFolder</code>.</td>
+    </tr>
+    <tr>
+      <td>. classpath </td>
+      <td>Classpath. The project source and target folders are included on the classpath automatically.</td>
+    </tr>
+    <tr>
+      <td>. lint </td>
+      <td>One of: <code>None</code>, <code>Normal</code>, <code>Lax</code>, <code>Strict</code>, <code>All</code>, or a custom set of java lint options. Default: <code>ctx.java.lint</code>.</td>
+    </tr>
+    <tr>
+      <td>. maxErrors </td>
+      <td>Maximum number of errors to show. Default: <code>ctx.maxErrors || 100</code>.</td>
+    </tr>
+    <tr>
+      <td>. maxSources </td>
+      <td>Maximum number of source files to compile at one time. Default: <code>ctx.maxSources || 100</code>.</td>
+    </tr>
+    <tr>
+      <td>. srcFolder </td>
+      <td>Source folder for Java. Default: <code>ctx.java.srcFolder</code>, <code>ctx.project.srcFolder</code>.</td>
+    </tr>
+    <tr>
+      <td>. tgtFolder </td>
+      <td>Target folder for Java. Default: <code>ctx.tgtFolder</code>.</td>
+    </tr>
+    <tr>
+      <td>. cwd </td>
+      <td>Current working directory when command is run. Defaults to project folder.</td>
+    </tr>
+    <tr>
+      <td>. logCommand </td>
+      <td>Whether to log the O/S command used. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. noLog </td>
+      <td>Whether to suppress log-action messages. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. discardOutput </td>
+      <td>Whether to discard the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. returnOutput </td>
+      <td>Whether to return the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td colspan="2">. } </td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><code>undefined</code></td>
+    </tr>
+  </tbody>
+</table></div><p>The compiler is that specified by <code>opts.jdkFolder</code> or by <code>ctx.java.jdkFolder</code>. JDK arguments may be specified by <code>opts.jdkArgs</code> or <code>ctx.java.jdkArgs</code>. Bear in mind that the JDK <code>--release</code> argument can change the targeted release.</p><p>Any relative elements of the classpath will be resolved against the project folder if specified by <code>opts.classpath</code> argument, the apex folder if specified by <code>ctx.java.classpath</code>, and the build library folder if specified by <code>ctx.build.classpath</code>. The project source and target folders are included on the classpath automatically.</p><p>Source lists can be conveniently built using <a href="#function-findfiles">findFiles</a>.</p><p>A custom set of lint options is specified as a CSV, per javac; for example <code>all,-classfile,-serial</code>. Using a curated set is recommended as these will be adapted as the options evolve.</p>
+<h3 id="function-compilejavascript-srcfils-tgtfil-opts">async compileJavaScript(srcfils,tgtfil,opts={})<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Compile one or more JavaScript sources.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>srcfils </td>
+      <td>Single or array of <code>String</code> or <code>FsInfo</code> specifying source files to compile.</td>
+    </tr>
+    <tr>
+      <td colspan="2">opts { </td>
+    </tr>
+    <tr>
+      <td>. noWarn </td>
+      <td>Array of compiler warning to suppress.</td>
+    </tr>
+    <tr>
+      <td>. wrapperFile </td>
+      <td>File in which to wrap the compiler output, using <code>%output%</code> as a placeholder for the output.</td>
+    </tr>
+    <tr>
+      <td>. logCommand </td>
+      <td>Whether to log the O/S command used. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. noLog </td>
+      <td>Whether to suppress progress messages. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. discardOutput </td>
+      <td>Whether to discard the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. returnOutput </td>
+      <td>Whether to return the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td colspan="2">. } </td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><code>undefined</code></td>
+    </tr>
+  </tbody>
+</table></div><p>The compiler used is the Closure Compiler from Google, provided as part of this build project, and periodically updated (approximately once a year). It&rsquo;s primary purpose is maximal minimization and obfuscation of the source.</p><p>Options are also passed to the underlying call to <a href="#runjava">run Java</a> and all options for that are permitted.</p><p>Source lists can be conveniently built using <a href="#function-findfiles">findFiles</a>.</p>
+<h3 id="function-createarchive-arc-spcs-opts">async createArchive(arc,spcs,opts={})<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Create a JAR or ZIP archive using the JDK jar tool.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>arc </td>
+      <td>Path of the archive to creatge. May be a<code>String</code> or <code>FsInfo</code>. Required.</td>
+    </tr>
+    <tr>
+      <td>spcs [{ </td>
+      <td>Array of specifications for files to add. Required.</td>
+    </tr>
+    <tr>
+      <td>. folder </td>
+      <td>Folder from which to include files; files will be archived with paths relative to this.</td>
+    </tr>
+    <tr>
+      <td>. glob </td>
+      <td>Glob string specifying subfolders and files to include.</td>
+    </tr>
+    <tr>
+      <td colspan="2">. }] </td>
+    </tr>
+    <tr>
+      <td colspan="2">opts { </td>
+    </tr>
+    <tr>
+      <td>. deleteInputFiles </td>
+      <td>Whether to delete the input files after successfully building the archive. Default: <code>false</code>. USE WITH CARE!</td>
+    </tr>
+    <tr>
+      <td>. jdkArgs </td>
+      <td>Arguments for the JDK&rsquo;s compiler. Default: <code>ctx.jdkArgs</code>.</td>
+    </tr>
+    <tr>
+      <td>. jdkFolder </td>
+      <td>Folder for the JDK. Default: <code>ctx.jdkFolder</code>.</td>
+    </tr>
+    <tr>
+      <td>. manifestFile </td>
+      <td>Path or <code>FsInfo</code> for the manifest file.</td>
+    </tr>
+    <tr>
+      <td>. proguardFile </td>
+      <td>Path or <code>FsInfo</code> for the ProGuard file, implicitly indicating that the JAR should be obfuscated.</td>
+    </tr>
+    <tr>
+      <td>. keepUnobfuscated </td>
+      <td>Whether to keep the unobfuscated file after obfuscating.</td>
+    </tr>
+    <tr>
+      <td>. logCommand </td>
+      <td>Whether to log the O/S command used. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. noLog </td>
+      <td>Whether to suppress progress messages. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. discardOutput </td>
+      <td>Whether to discard the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. returnOutput </td>
+      <td>Whether to return the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td colspan="2">. } </td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><code>undefined</code></td>
+    </tr>
+  </tbody>
+</table></div><p>This function defers to [#runJdkTool|function-runJdkTool], passing the options received to that function.</p><p>The type of archive is derived from the supplied extension. Specifying a manifest and/or obfuscation config is only allowed for a JAR file. If obfuscation is specified, the JAR is renamed to a temporary name and passed as the first <code>-injar</code> for Proguard to process into the original name specified and the original JAR deleted. The original file may be retained, if desired, with the temporary name.</p><p>The following folders are mapped for substitution in Proguard&rsquo;s configuration:</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>APXFDR </td>
+      <td><code>ctx.apxFolder</code></td>
+    </tr>
+    <tr>
+      <td>BLDFDR </td>
+      <td><code>ctx.bldFolder</code></td>
+    </tr>
+    <tr>
+      <td>CDEFDR </td>
+      <td><code>ctx.cdeFolder</code></td>
+    </tr>
+    <tr>
+      <td>JDKFDR </td>
+      <td><code>ctx.java.jdkFolder</code></td>
+    </tr>
+    <tr>
+      <td>LIBFDR </td>
+      <td><code>ctx.project.libFolder</code></td>
+    </tr>
+    <tr>
+      <td>PRJFDR </td>
+      <td><code>ctx.prjFolder</code></td>
+    </tr>
+    <tr>
+      <td>SDKFDR </td>
+      <td><code>ctx.sdkFolder</code></td>
+    </tr>
+    <tr>
+      <td>WRKFDR </td>
+      <td><code>ctx.project.wrkFolder</code></td>
+    </tr>
+  </tbody>
+</table></div>
+<h3 id="function-generatedoc-tgt-args-opts">async generateDoc(tgt,args=[],opts={})<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Generate documentation from JavaScript source files and JSON configuration files.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>tgt </td>
+      <td>Target archive file. Required.</td>
+    </tr>
+    <tr>
+      <td>args[] </td>
+      <td>Arguments for the DocGen tool. Use <code>java -jar build/bin/DocGen.jar -help</code> for details.</td>
+    </tr>
+    <tr>
+      <td colspan="2">opts { </td>
+    </tr>
+    <tr>
+      <td>. idxLevel </td>
+      <td>Index level, 1 - 3. Default: 3.</td>
+    </tr>
+    <tr>
+      <td>. idxContent </td>
+      <td>Name of index file. Default: &ldquo;!index.txt&rdquo;.</td>
+    </tr>
+    <tr>
+      <td>. srcExclude </td>
+      <td>Exclude source list. Default: &ldquo;Z*&rdquo;.</td>
+    </tr>
+    <tr>
+      <td>. subTitle </td>
+      <td>Title substitution: &ldquo;Developer Documentation&rdquo;.</td>
+    </tr>
+    <tr>
+      <td>. subCompany </td>
+      <td>Company Name substition. Default: &ldquo;DolHub Software Engineering&rdquo;.</td>
+    </tr>
+    <tr>
+      <td>. owner </td>
+      <td>Software Owner. Default: &quot;&ldquo;. . subVer | Version substitution. Default: &rdquo;1.0&ldquo;. . tgtVerify | Folder to unpack documentation to for verification. Default: ctx.wrkFolder+&rdquo;doc&quot;.</td>
+    </tr>
+    <tr>
+      <td>. jreArgs </td>
+      <td>Arguments for the JRE. Default: <code>ctx.jreArgs</code>.</td>
+    </tr>
+    <tr>
+      <td>. jreFolder </td>
+      <td>Folder for the JRE. Default: <code>ctx.jreFolder</code>.</td>
+    </tr>
+    <tr>
+      <td>. logCommand </td>
+      <td>Whether to log the O/S command used. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. noLog </td>
+      <td>Whether to suppress progress messages. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. discardOutput </td>
+      <td>Whether to discard the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. returnOutput </td>
+      <td>Whether to return the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td colspan="2">. } </td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><code>undefined</code></td>
+    </tr>
+  </tbody>
+</table></div>
+<h3 id="function-generatejavadoc-tgt-pkgs-opts">async generateJavaDoc(tgt, pkgs, opts={})<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Generate documentation from Java source files.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>tgt </td>
+      <td>The target file for the archive.</td>
+    </tr>
+    <tr>
+      <td>pkgs </td>
+      <td>One or more package names from which to extract documentation.</td>
+    </tr>
+    <tr>
+      <td colspan="2">opts { </td>
+    </tr>
+    <tr>
+      <td>. classpath </td>
+      <td>Class file locations to add to the source, target, and context classpaths.</td>
+    </tr>
+    <tr>
+      <td>. documentTitle </td>
+      <td>Document title. Default: &ldquo;Java Package Documentation&rdquo;.</td>
+    </tr>
+    <tr>
+      <td>. outFolder </td>
+      <td>Output folder path. Default <code>ctx.wrkFolder</code> + <code>&quot;javadoc/&quot;</code>.</td>
+    </tr>
+    <tr>
+      <td>. overview </td>
+      <td>Overview file, relative to the project root. Optional.</td>
+    </tr>
+    <tr>
+      <td>. sourcepath </td>
+      <td>Source file locations to add to the source folder.</td>
+    </tr>
+    <tr>
+      <td>. srcFolder </td>
+      <td>Source folder path. Default <code>ctx.java.srcFolder</code>, then <code>ctx.project.srcFolder</code>.</td>
+    </tr>
+    <tr>
+      <td>. tgtFolder </td>
+      <td>Target folder path. Default <code>ctx.java.tgtFolder</code>, then <code>ctx.project.tgtFolder</code>.</td>
+    </tr>
+    <tr>
+      <td>. windowTitle </td>
+      <td>Window title. Default: <code>opts.documentTitle</code>, then <code>ctx.prjFolder.path</code>.</td>
+    </tr>
+    <tr>
+      <td colspan="2">. } </td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><code>undefined</code></td>
+    </tr>
+  </tbody>
+</table></div><p>Documention is generated using the new built in support for MarkDown introduced in Java 23, and therefore expects the LTS JDK 25 to be present. This requires <code>sdk/jdk-25</code>.</p><p>This function defers to [#runJdkTool()|function-runJdkTool], passing the options to that function.</p>
+<h3 id="function-rungit-cmd-args-opts">async runGit(cmd,args = [],opts = {})<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Run git command.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>cmd </td>
+      <td>Name of git command (e.g. push, pull, commit, etc). Required.</td>
+    </tr>
+    <tr>
+      <td>args </td>
+      <td>Arguments to pass to the program. Defaults to <code>[]</code></td>
+    </tr>
+    <tr>
+      <td colspan="2">opts { </td>
+    </tr>
+    <tr>
+      <td>. gitFolder </td>
+      <td>Git folder. Defaults to <code>ctx.git.gitFolder</code>.</td>
+    </tr>
+    <tr>
+      <td>. cwd </td>
+      <td>Current working directory when command is run. Defaults to project folder.</td>
+    </tr>
+    <tr>
+      <td>. logCommand </td>
+      <td>Whether to log the O/S command used. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. noLog </td>
+      <td>Whether to suppress progress messages. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. discardOutput </td>
+      <td>Whether to discard the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. returnOutput </td>
+      <td>Whether to return the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td colspan="2">. } </td>
+    </tr>
+  </tbody>
+</table></div>
+<h3 id="function-runjava-pgm-args-opts">async runJava(pgm,args=[],opts={})<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Run a Java program, either class or JAR.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>pgm </td>
+      <td>Program to run, either the path of a JAR or the fully qualified name of a class.</td>
+    </tr>
+    <tr>
+      <td>args </td>
+      <td>Arguments to pass to the program.</td>
+    </tr>
+    <tr>
+      <td colspan="2">opts { </td>
+    </tr>
+    <tr>
+      <td>. jreFolder </td>
+      <td>Folder of the JRE to use. Defaults to <code>ctx.java.jreFolder</code>.</td>
+    </tr>
+    <tr>
+      <td>. jreArgs </td>
+      <td>Arguments for the JRE. Defaults to <code>ctx.java.jreArgs</code>.</td>
+    </tr>
+    <tr>
+      <td>. srcFolder </td>
+      <td>Source folder for classpth. Defaults to <code>ctx.java.srcFolder</code>, then <code>ctx.project.srcFolder</code>.</td>
+    </tr>
+    <tr>
+      <td>. tgtFolder </td>
+      <td>Target folder for classpth. Defaults to <code>ctx.java.tgtFolder</code>, then <code>ctx.project.tgtFolder</code>.</td>
+    </tr>
+    <tr>
+      <td>. classpath </td>
+      <td>Classpath. The project source, target, and &lsquo;lib/*&rsquo; folders are included on the classpath automatically.</td>
+    </tr>
+    <tr>
+      <td>. cwd </td>
+      <td>Current working directory when command is run. Defaults to project folder.</td>
+    </tr>
+    <tr>
+      <td>. logCommand </td>
+      <td>Whether to log the O/S command used. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. noLog </td>
+      <td>Whether to suppress progress messages. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. discardOutput </td>
+      <td>Whether to discard the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. returnOutput </td>
+      <td>Whether to return the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td colspan="2">. } </td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><code>undefined</code></td>
+    </tr>
+  </tbody>
+</table></div><p>Any relative elements of the classpath will be resolved against the project folder if specified by <code>opts.classpath</code> argument, the apex folder if specified by <code>ctx.java.classpath</code>, and the build library folder if specified by <code>ctx.build.classpath</code>.</p>
+<h3 id="function-runjavatests-fils-args-opts">async runJavaTests(fils,args=[],opts={})<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Run Java unit tests.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>fils </td>
+      <td>Source files to compile and run.</td>
+    </tr>
+    <tr>
+      <td>args </td>
+      <td>Arguments to pass to the programs.</td>
+    </tr>
+    <tr>
+      <td colspan="2">opts { </td>
+    </tr>
+    <tr>
+      <td>. srcFolder </td>
+      <td>Source folder for classpth. Defaults to <code>ctx.java.srcFolder</code>, then <code>ctx.project.srcFolder</code>.</td>
+    </tr>
+    <tr>
+      <td colspan="2">. } </td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><code>undefined</code></td>
+    </tr>
+  </tbody>
+</table></div><p>Currently this simply compiles and runs the specified classes. Unit tests are expected to begin with a <code>Z</code> and all classes in the project beginning with <code>Z</code> will be deleted before compiling.</p><p>This function defers to [#runJava()|function-runJava], passing the arguments and options to that function.</p>
+<h3 id="function-runjdktool-pgm-args-opts">async runJdkTool(pgm,args=[],opts={})<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Run a native JDK tool.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>pgm </td>
+      <td>Name of program to run (without the extension on Windows).</td>
+    </tr>
+    <tr>
+      <td>args </td>
+      <td>Arguments to pass to the program.</td>
+    </tr>
+    <tr>
+      <td colspan="2">opts { </td>
+    </tr>
+    <tr>
+      <td>. jdkFolder </td>
+      <td>JRE folder. Defaults to <code>ctx.java.jdkFolder</code>.</td>
+    </tr>
+    <tr>
+      <td>. cwd </td>
+      <td>Current working directory when command is run. Defaults to project folder.</td>
+    </tr>
+    <tr>
+      <td>. logCommand </td>
+      <td>Whether to log the O/S command used. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. noLog </td>
+      <td>Whether to suppress progress messages. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. discardOutput </td>
+      <td>Whether to discard the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. returnOutput </td>
+      <td>Whether to return the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td colspan="2">. } </td>
+    </tr>
+  </tbody>
+</table></div><p>Take care to ensure any tool used is provided for all JDK distributions used by any developer, and at least Linux, Mac, and Windows.</p>
+<h3 id="function-runjstests-fils-args-opts">async runJsTests(fils,args=[],opts={})<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Run JavaScript unit tests with the BDD package loaded.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>fils </td>
+      <td>Script files to run.</td>
+    </tr>
+    <tr>
+      <td>args </td>
+      <td>Arguments to pass to the programs.</td>
+    </tr>
+    <tr>
+      <td colspan="2">opts { </td>
+    </tr>
+    <tr>
+      <td>. jsrFolder </td>
+      <td>JavaScript Runtime folder. Defaults to <code>ctx.js.jsrFolder</code>.</td>
+    </tr>
+    <tr>
+      <td>. srcFolder </td>
+      <td>Source folder. Defaults to <code>ctx.js.srcFolder</code>, then <code>ctx.project.srcFolder</code>.</td>
+    </tr>
+    <tr>
+      <td colspan="2">. imports { </td>
+    </tr>
+    <tr>
+      <td>. . (prefix) </td>
+      <td>URL for folder.</td>
+    </tr>
+    <tr>
+      <td colspan="2">. . } </td>
+    </tr>
+    <tr>
+      <td>. cwd </td>
+      <td>Current working directory when command is run. Defaults to project folder.</td>
+    </tr>
+    <tr>
+      <td>. logCommand </td>
+      <td>Whether to log the O/S command used. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. discardOutput </td>
+      <td>Whether to discard the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. returnOutput </td>
+      <td>Whether to return the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td colspan="2">. } </td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><code>undefined</code></td>
+    </tr>
+  </tbody>
+</table></div><p>Imports are a map of string path prefixes to URLs which serve as the root for that path. Prefixes can be absolute or relative paths and are match case-sensitively. The default imports are:</p>
+<pre><code>&quot;/$apx/&quot; : `file:///${ctx.apxFolder}`,
+&quot;/$bdd/&quot; : `file:///${ctx.build.bddFolder}`,
+&quot;/$cwd/&quot; : `file:///${fil.parent}`,
+&quot;/$lib/&quot; : `file:///${ctx.build.libFolder}`,
+&quot;/$prj/&quot; : `file:///${ctx.prjFolder}`,
+&quot;/$ubt/&quot; : `file:///${ctx.build.ubtFolder}`,
+</code></pre>
+<h3 id="function-runmaven-cmd-args-opts">async runMaven(cmd,args = [],opts = {})<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Run a maven command.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>cmd </td>
+      <td>Name of maven command (e.g. clean, compile, package, etc). Required.</td>
+    </tr>
+    <tr>
+      <td>args </td>
+      <td>Arguments to pass to the program. Defaults to <code>[]</code></td>
+    </tr>
+    <tr>
+      <td colspan="2">opts { </td>
+    </tr>
+    <tr>
+      <td>. mvnFolder </td>
+      <td>Maven home folder. Defaults to <code>ctx.maven.mvnFolder</code>.</td>
+    </tr>
+    <tr>
+      <td>. jreFolder </td>
+      <td>JRE folder. Defaults to <code>ctx.maven.jreFolder</code>, then to <code>ctx.java.jreFolder</code>.</td>
+    </tr>
+    <tr>
+      <td>. logCommand </td>
+      <td>Whether to log the O/S command used. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. noLog </td>
+      <td>Whether to suppress progress messages. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. discardOutput </td>
+      <td>Whether to discard the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. returnOutput </td>
+      <td>Whether to return the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td colspan="2">. } </td>
+    </tr>
+  </tbody>
+</table></div>
+<h3 id="function-validatejs-srcfils-opts">async validateJs(srcfils,opts={})<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Validate JavaScript files (using <a href="https://deno.land/manual/tools/linter">Deno lint</a>).</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>fils </td>
+      <td>Script files to run.</td>
+    </tr>
+    <tr>
+      <td colspan="2">opts { </td>
+    </tr>
+    <tr>
+      <td>. jsrFolder </td>
+      <td>JavaScript Runtime folder. Defaults to <code>ctx.js.jsrFolder</code>.</td>
+    </tr>
+    <tr>
+      <td>. srcFolder </td>
+      <td>Source folder. Defaults to <code>ctx.js.srcFolder</code>, then <code>ctx.project.srcFolder</code>.</td>
+    </tr>
+    <tr>
+      <td>. lint </td>
+      <td>One of: <code>None</code>, <code>Normal</code>, <code>Lax</code>, <code>Strict</code>, <code>All</code>, or a custom lint file per <code>Deno lint</code>. Default: <code>ctx.js.lint</code>.</td>
+    </tr>
+    <tr>
+      <td>. compactOutput </td>
+      <td>Whether to emit compact linting output messages. Default: <code>ctx.js.compactOutput</code>.</td>
+    </tr>
+    <tr>
+      <td>. cwd </td>
+      <td>Current working directory when command is run. Defaults to project folder.</td>
+    </tr>
+    <tr>
+      <td>. logCommand </td>
+      <td>Whether to log the O/S command used. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. noLog </td>
+      <td>Whether to suppress progress messages. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. discardOutput </td>
+      <td>Whether to discard the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. returnOutput </td>
+      <td>Whether to return the command output as a string. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td colspan="2">. } </td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><code>undefined</code></td>
+    </tr>
+  </tbody>
+</table></div><p>A custom set of lint options is specified as a path or <code>FsInfo</code>. Using a curated set is recommended as these will be adapted as the options evolve.</p>
+<h2 id="sync-build-functions">Sync Build Functions</h2>
+<h3 id="function-buildsequence-bldfnc-prqfncs">buildSequence(bldfnc,prqfncs)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Specify, or remove, a sequence of prerequisite functions to be executed before a build action.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>bldfnc </td>
+      <td>The build function for which to get or set the prerequisite function list.</td>
+    </tr>
+    <tr>
+      <td>prqfncs </td>
+      <td>The list of functions, null to delete, or omit to get the current list.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td>The current sequence if getting, or a reference to this API if setting.</td>
+    </tr>
+  </tbody>
+</table></div><p>Prequisite functions are executed before the specified build function and allow other build actions or functions to always be executed before any specific build action. This can allow, for example, all files to be recompiled before packaging them into a JAR file. Note that <em>any</em> function exported from the build script can be set as a prereq.</p>
+<h3 id="function-copyartifacts-srcfdr-glb-ctx-opts">copyArtifacts(srcfdr,glb,ctx,opts={})<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Copy one or more build artifacts to the folders listed in file <code>!UbtBuild.target-folder</code>. Each line in the file is is either: (a) a comment starting with <code>#</code>, <code>*</code>, or <code>//*/</code>; (b) a source group enclosed in square brackets, e.g. <code>bin/</code>; or (c) a target folder template; or (d) A temporary target folder template starting with an empty-comment marker, <code>/**/</code>.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>srcfdr </td>
+      <td>The folder from which to copy, and to use in source group matching.</td>
+    </tr>
+    <tr>
+      <td>glb </td>
+      <td>The filename glob pattern to match. <strong>NB: This pattern will be deleted from each target!</strong></td>
+    </tr>
+    <tr>
+      <td>ctx </td>
+      <td>The build context, against which substitutions in the target folders are resolved.</td>
+    </tr>
+    <tr>
+      <td>opts </td>
+      <td>Copy options.</td>
+    </tr>
+    <tr>
+      <td>. noLog </td>
+      <td>Whether to suppress progress messages. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. targetList </td>
+      <td>Specifies the target list file or the folder containing it. Defaults to <code>&lt;ctx.prjFolder&gt;/!UbtBuild.target-folder</code>.</td>
+    </tr>
+    <tr>
+      <td>. targetClear </td>
+      <td>Indicates that the target folder should first be cleared. Defaults to <code>true</code>, as this is usually what is needed.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td>The current sequence if getting, or a reference to this API if setting.</td>
+    </tr>
+  </tbody>
+</table></div><p>Groups are matched to a source path with ends with the group name.</p><p>Template substitutions are represented by <code>{{some.name}}</code> and reference values in the supplied context. Custom values can be easily added using the spread syntax <code>{ ...ctx, custom: &quot;X&quot; }</code>.</p><p>This is purely a convenience for developers; if a target folder it missing it is reported, but does not fail the build as different developers may or may not have particular targets on their system.</p><p>Example Build Script:</p>
+<pre><code>ubt.heading2(&quot;Copy Artifacts to Other Projects&quot;);
+ubt.copyArtifacts(khufdr+&quot;bin/&quot;,&quot;**&quot;                    ,{ ...ctx });
+ubt.copyArtifacts(khufdr+&quot;nls/&quot;,&quot;**/RolePlay?(-??).json&quot;,{ ...ctx });
+</code></pre><p>Example Target Folder File:</p>
+<pre><code>[bin/]
+    {{cdeFolder}}rlp400v3/src/web/rlpdr/bin/
+##  {{cdeFolder}}skdme/src/web/staff
+##  {{cdeFolder}}v360/website/rlpdr/bin/
+
+[nls/]
+    {{cdeFolder}}rlp400v3/src/cfg/nls/
+##  {{cdeFolder}}skdme/src/cfg/nls/
+##  {{cdeFolder}}v360/config/nls/
+</code></pre>
+<h3 id="function-copyfiles-srcs-tgts-opts">copyFiles(srcs,tgts,opts={})<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Copy one or more files to one or more targets, optionally moving them.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>srcs </td>
+      <td>The list of files and folders from which to copy.</td>
+    </tr>
+    <tr>
+      <td>tgts </td>
+      <td>The list of files and folders to which to copy.</td>
+    </tr>
+    <tr>
+      <td colspan="2">opts { </td>
+    </tr>
+    <tr>
+      <td>. move </td>
+      <td>Whether to move the files instead of copying them. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. recurse </td>
+      <td>Whether to recurse into subfolders. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. replace </td>
+      <td>Whether to <strong><em>entirely</em></strong> replace target folders. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td>. noLog </td>
+      <td>Whether to suppress progress messages. Default: <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td colspan="2">. } </td>
+    </tr>
+    <tr>
+      <td colspan="2">=&gt; { </td>
+    </tr>
+    <tr>
+      <td>. files </td>
+      <td>The number of files copied.</td>
+    </tr>
+    <tr>
+      <td>. folders </td>
+      <td>The number of subfolders copied (that is, excluding any folders given in <code>srcs</code>).</td>
+    </tr>
+    <tr>
+      <td colspan="2">. } </td>
+    </tr>
+  </tbody>
+</table></div><p>If the <code>move</code> option is specified, this function attempts to use a file-system move first; if this fails for any reason, the function falls back to doing a copy/delete for all remaining files at the current level and below. This cleanly handles copying between different disks while efficiently renaming and moving files within the same disk.</p><p>When multiple targets are specified, the targets are iterated and the sources are copied to each one in turn. In addition, the move option is not actioned while copying and the source files are removed at the conclusion of all copying instead.</p>
+<h3 id="function-createfolders-fdrs">createFolders(fdrs)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Create folders, including any needed intermediaries.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>fdrs </td>
+      <td>The list of folders to create.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><code>undefined</code></td>
+    </tr>
+  </tbody>
+</table></div>
+<h3 id="function-deletefiles-fils">deleteFiles(fils)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Delete one or more files.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>pths </td>
+      <td>The list of files to delete.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><code>undefined</code></td>
+    </tr>
+  </tbody>
+</table></div><p>Files may be specified as either strings or <code>FsInfo</code> objects.</p>
+<h3 id="function-deletefolders-fdrs">deleteFolders(fdrs)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Delete one or more folders, including their contents, recursively.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>pths </td>
+      <td>The list of folders to delete.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><code>undefined</code></td>
+    </tr>
+  </tbody>
+</table></div><p>Folders may be specified as either strings or <code>FsInfo</code> objects.</p>
+<h3 id="function-findfiles-fdr-glb">findFiles(fdr,glb)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Find files matching a <a href="!overview.html#file-system-globs">glob pattern</a>.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>fdr </td>
+      <td>The folder to search.</td>
+    </tr>
+    <tr>
+      <td>glb </td>
+      <td>The glob pattern.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td>A list of <code>FsInfo</code> matching the search pattern.</td>
+    </tr>
+  </tbody>
+</table></div><p>Keep in mind that to match files in subfolders the pattern must include a <em>globstar</em> path element must be specified. For example, to match all Java source files in the tree rooted at <code>fdr</code> use <code>findFiles(fdr,&quot;**/*.java&quot;)</code>.</p>
+<h3 id="function-findfolders-fdr-glb">findFolders(fdr,glb)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Find folders matching a <a href="!overview.html#file-system-globs">glob pattern</a>.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>fdr </td>
+      <td>The folder to search.</td>
+    </tr>
+    <tr>
+      <td>glb </td>
+      <td>The glob pattern.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td>A list of <code>FsInfo</code> matching the search pattern.</td>
+    </tr>
+  </tbody>
+</table></div><p>Keep in mind that to match files in subfolders the pattern must include a <em>globstar</em> path element must be specified. For example, to match all Java source files in the tree rooted at <code>fdr</code> use <code>findFiles(fdr,&quot;**/*.java&quot;)</code>.</p>
+<h3 id="function-fsinfo-pth-subs">fsInfo(pth,...subs)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Create (or update) an <code>FsInfo</code> object for the specified path, optionally with additional subpath segments.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>pth </td>
+      <td>The principle path. If already an FsInfo it&rsquo;s state values will be updated.</td>
+    </tr>
+    <tr>
+      <td>subs </td>
+      <td>Zero or more segments to join with the path.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td>An <code>FsInfo</code> representing the assembled path.</td>
+    </tr>
+  </tbody>
+</table></div><p>The <code>FsInfo</code> object is just a convenient description of a path utilized by the build system with properties that are useful for file manipulation. The path separator is always a slash, regardless of OS.</p><p>If <code>pth</code> is <code>null</code> or <code>undefined</code> <em>and</em> no subpaths are specified, the orignal argument is returned. If <code>pth</code> is already an <code>FsInfo</code> <em>and</em> no subpaths are specified, the original argument is returned after refreshing the object&rsquo;s status. To explicitly create a new object pass <code>FsInfo.path</code> to this function.</p><p>Folders are always described with a trailing <code>/</code> so that concatenation with subpath elements is straight forward. This also removes any ambiguity of intent with paths that do not (yet) exist and of appearance when viewed.</p><p>Any subpath elements supplied are joined with the path with one, and only one separator in between, regardless of existing separator characters at the start/end of any given string. That is, <code>fsInfo(&quot;/a/&quot;,&quot;/b&quot;,&quot;c/&quot;,&quot;/d&quot;)</code> creates an object representing <code>&quot;/a/b/c/d&quot;</code>. Blank, null, or undefined subpath arguments are ignored.</p>
+<h3 id="function-resolvejdkfolder-ver">resolveJdkFolder(ver)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Resolve the JDK folder for a specific JDK version based on the context settings, allowing different projects to target different JDK versions.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>ver </td>
+      <td>Required JDK version. NB: Support is implemented for padding 1 digit to 2, and 2 digits to three.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><code>FsInfo</code> for the JDK.</td>
+    </tr>
+  </tbody>
+</table></div><p>Generally, a non-standard JDK version is only needed for running specific tools. At present that includes some tools that use libraries depending on old pre-JDK-11 APIs that have been disallowed.</p>
+<h3 id="function-readfiledata-pth">readFileData(pth)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Read bytes from a file.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>pth </td>
+      <td>Either a string path, <code>FsInfo</code> path, or URL.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array.html">Uint8Array</a> array of the file contents.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h3 id="function-readfiletext-pth">readFileText(pth)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Read text from a UTF-8 encoded file.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>pth </td>
+      <td>Either a string path, <code>FsInfo</code> path, or URL.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td>String of the file contents.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h3 id="function-writefiledata-pth-dta">writeFileData(pth,dta)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Write bytes to a file.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>pth </td>
+      <td>Either a string path, <code>FsInfo</code> path, or URL.</td>
+    </tr>
+    <tr>
+      <td>dta </td>
+      <td>The data to write, as a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array.html">Uint8Array</a>.</td>
+    </tr>
+    <tr>
+      <td colspan="2">opts { </td>
+    </tr>
+    <tr>
+      <td>. append </td>
+      <td>If true, append instead of overwriting.</td>
+    </tr>
+    <tr>
+      <td>. create </td>
+      <td>If true, create the file if needed.</td>
+    </tr>
+    <tr>
+      <td>. createNew </td>
+      <td>If true, do <em>not</em> overwrite an existing file.</td>
+    </tr>
+    <tr>
+      <td>. mode </td>
+      <td>Unix permissions applied to file, whether new or existing.</td>
+    </tr>
+    <tr>
+      <td colspan="2">. } </td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><code>undefined</code>.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h3 id="function-writefiletext-pth-txt-opts">writeFileText(pth,txt,opts)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Write text to a UTF-8 encoded file.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>pth </td>
+      <td>Either a string path, <code>FsInfo</code> path, or URL.</td>
+    </tr>
+    <tr>
+      <td>txt </td>
+      <td>File contents.</td>
+    </tr>
+    <tr>
+      <td colspan="2">opts { </td>
+    </tr>
+    <tr>
+      <td>. append </td>
+      <td>If true, append instead of overwriting.</td>
+    </tr>
+    <tr>
+      <td>. create </td>
+      <td>If true, create the file if needed.</td>
+    </tr>
+    <tr>
+      <td>. createNew </td>
+      <td>If true, do <em>not</em> overwrite an existing file.</td>
+    </tr>
+    <tr>
+      <td>. mode </td>
+      <td>Unix permissions applied to file, whether new or existing.</td>
+    </tr>
+    <tr>
+      <td colspan="2">. } </td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><code>undefined</code>.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h2 id="sync-utility-functions">Sync Utility Functions</h2>
+<h3 id="function-alert-args">alert(...args)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Alert use to something which must be done before proceeding. Arguments are passed to the engine <code>alert</code> function. This utility handles blank-line logging properly.</p>
+<h3 id="function-confirm-args">confirm(...args)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Confirm an action, returning true or false. Arguments are passed to the engine <code>confirm</code> function. This utility handles blank-line logging properly.</p>
+<h3 id="function-datetime-dat">dateTime(dat)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Format a date to local time to human-readable ISO8601 string.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>dat </td>
+      <td>A date object. Default: Current date/time.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td>Formatted date.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h3 id="function-datetimez-dat">dateTimeZ(dat)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Format a date to a UTC (Zulu time) ISO8601 string.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>dat </td>
+      <td>A date object. Default: Current date/time.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td>Formatted date.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h3 id="function-deepprop-obj-key-dft">deepProp(obj,key,dft)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Deeply resolve a compound property within the supplied object.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>obj </td>
+      <td>Object from which a value is to be extracted.</td>
+    </tr>
+    <tr>
+      <td>key </td>
+      <td>Property key, e.g. <code>&quot;a.b.c&quot;</code>.</td>
+    </tr>
+    <tr>
+      <td>dft </td>
+      <td>Value to use if property cannot be located.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td>The property value.</td>
+    </tr>
+  </tbody>
+</table></div><p>This is useful for easily extracting configured values from a nested object where all you have is the string name. In code it is more succinct, and performant to just use <code>let val = obj.a.b.c;</code>.</p><p>Example:</p>
+<pre><code>let val = ubt.deepProp(obj,&quot;a.b.c&quot;);                // =&gt; value or undefined
+let val = ubt.deepProp(obj,&quot;a.b.c&quot;,&quot;Default&quot;);      // =&gt; value or &quot;Default&quot;
+</code></pre>
+<h3 id="function-error-args">Error(...args)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>UbtError constructor</p><p>Refer to <a href="UbtError.html">Ubt Error</a> for details.</p>
+<h3 id="function-heading1-txt">heading1(txt)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Emit a level-1 heading.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>txt </td>
+      <td>The heading text.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><code>undefined</code>.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h3 id="function-heading2-txt">heading2(txt)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Emit a level two heading.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>txt </td>
+      <td>The heading text.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><code>undefined</code>.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h3 id="function-heading3-txt">heading3(txt)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Emit a level-3 heading.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>txt </td>
+      <td>The heading text.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><code>undefined</code>.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h3 id="function-log-args">log(...args)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Log console output with special handling to prevent multiple blank lines. Blank lines can be forced by explicitly specifying <code>&quot;
+&quot;</code> in an argument.</p>
+<h3 id="function-objstring-lbl-obj-arr">objString(lbl,obj_arr)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Convert an object (including an array) into a readble, multiline, reasonbly compact JSON-like string.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>lbl </td>
+      <td>Label for the output.</td>
+    </tr>
+    <tr>
+      <td>obj_arr </td>
+      <td>Either an object or array to convert to a string.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td><code>undefined</code>.</td>
+    </tr>
+  </tbody>
+</table></div><p>Use for emitting build data of interest to the programmer doing the build. The format is a hard-wrapped humane JSON.</p>
+<h3 id="function-prompt-args">prompt(...args)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Prompt for a value, returning that value. Arguments are passed to the engine <code>prompt</code> function. This utility handles blank-line logging properly.</p>
+<h3 id="function-resolvetemplate-tpt-ctx-fbk">resolveTemplate(tpt,ctx,fbk)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Resolve a string template against values in a context object.</p><p>Template substitutions are represented by <code>{{some.name}}</code>, reference values in the supplied context, and may be dotted nested names. Custom values can be easily added using the spread syntax, e.g. <code>{ ...ctx, custom: &quot;X&quot; }</code>. To assist with debugging, substitutions which cannot be resolved remain in the string as <code>{{some.name}}</code>.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>tpt </td>
+      <td>Template string.</td>
+    </tr>
+    <tr>
+      <td>ctx </td>
+      <td>UBT context object.</td>
+    </tr>
+    <tr>
+      <td>fbk </td>
+      <td>Fallback value for missing values. Default: The substitution text.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td>The resolved string.</td>
+    </tr>
+  </tbody>
+</table></div><p>Example:</p>
+<pre><code>ubt.resolveTemplate(&quot;{{prjFolder}}x/{{special}}/z&quot;,{ ...ctx, special: &quot;y&quot; }); // =&gt; /path/to/project/x/y/z
+</code></pre>
+<h3 id="function-uuidv4-b64">uuidV4(b64)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Create a V4 UUID.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>b64 </td>
+      <td>If true, return a base64-encoded string. Otherwise, return a hyphen-separated hex string.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td>The generated UUID.</td>
+    </tr>
+  </tbody>
+</table></div><p>Example:</p>
+<pre><code>ubt.uuidV4();      // =&gt; &quot;3f2504e0-4f89-11d3-9a0c-0305e82c3301&quot;
+ubt.uuidV4(true);  // =&gt; &quot;q1fPz-9T0u2sX8vQe7n5A&quot;
+</code></pre>
+<h3 id="function-wraptext-txt">wrapText(txt)<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Wrap a text string to fit within the standard console width (currently 120 columns).</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>txt </td>
+      <td>Text to wrap.</td>
+    </tr>
+    <tr>
+      <td>=&gt; </td>
+      <td>The wrapped text.</td>
+    </tr>
+  </tbody>
+</table></div><p>Example:</p>
+<pre><code>ubt.log(ubt.wrapText(aLongString));
+</code></pre>
+</article>
+
+    </main>
+
+    <footer>
+        <div class="subtext">Copyright , All Rights Reserved</div>
+        <div class="page-links"><span title="Previous Page (Arrow Left)"><a class='prev' href='+UBT.html'>prev</a></span> | <a href="">top</a> | <a href="index.html">index</a> | <span title="Next Page (Arrow Right)"><a class='next' href='UbtEngine.html'>next</a></span></div>
+    </footer>
+
+    <script>
+        setTimeout(() => {
+            document.querySelector("#dgc")?.focus();
+            },100);
+        document.onkeydown = (evt) => {
+            if(!evt.altKey && !evt.ctrlKey && !evt.metaKey && !evt.shiftKey) {
+                switch(evt.key) {
+                    case "ArrowLeft" : {
+                        let elm = document.querySelector("header .page-links .prev");
+                        if(elm) { location.href = elm.href; }
+                        evt.preventDefault();
+                        } break;
+                    case "ArrowRight" : {
+                        let elm = document.querySelector("header .page-links .next");
+                        if(elm) { location.href = elm.href; }
+                        evt.preventDefault();
+                        } break;
+                    }
+                }
+            };
+    </script>
+</body>
+</html>

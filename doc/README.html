@@ -1,0 +1,760 @@
+<!doctype html>
+<html>
+<head>
+    <title>Ultraviolet Build Tool</title>
+    <meta charset="utf-8">
+    <meta name="author" content="">
+    <link rel="stylesheet" type="text/css" href="style.css" media="screen,print">
+    <style>
+        body.inside-iframe :is(header, footer) {
+            display: none;
+            }
+    </style>
+</head>
+
+<body class="doc">
+    <script>
+        let body    = document.querySelector("body");
+        if(window.parent !== window) {
+            body.classList.add('inside-iframe');
+            }
+    </script>
+
+    <header>
+        <div class="title"><a href="index.html">Ultraviolet Build Tool</a></div>
+        <div class="subtitle">Developer Documentation</div>
+        <div class="subtext">Version 1.00, Produced 2026-06-07</div>
+        <div class="page-links"><span title="Previous Page (Arrow Left)"></span> <span title="Next Page (Arrow Right)"><a class='next' href='LICENSE.html'>next</a></span></div>
+    </header>
+
+    <main id="dgc">
+        <article class="doc">
+<h1 id="ultaviolet-build-tool-ubt">Ultaviolet Build Tool (UBT)</h1><p>A JavaScript package to provide cross-platfom build support. A complete, self-contained, extensible project to support building any project using any tools. It includes an optional BDD test harness for JavaScript.</p><p>Current support:</p>
+<ul>
+  <li>Java</li>
+  <li>JavaScript</li>
+  <li>Packaging</li>
+  <li>Translation Extraction</li>
+  <li>Documentation</li>
+  <li>Testing (JavaScript only)</li>
+</ul><h2 id="overview-of-ubt">Overview of UBT</h2><p>Currently written for <em>Deno</em> the package is designed to shield developers from Deno&rsquo;s specifics in order to preserve the possibility of migrating to other JS Runtimes. The reasons that Deno was chosen is primarily for it&rsquo;s smart built-in package caching, and for the community general eschewing of &ldquo;nano&rdquo; packages consisting of single and/or trivial functions.</p><p>The system is executed by running the <code>UbtEngine</code> with the <em>Deno</em> JavaScript Runtime. The engine takes two arguments:</p>
+<ol>
+  <li>The build action, and</li>
+  <li>Either a file or folder on which the build action should operate.</li>
+</ol><p>The engine then sets up the build context with information about the file system and tools, invokes setup functions, then the build action function, then teardown functions. By means of a sequence set up in the the script&rsquo;s setup function dependency build functions can be invoked first.</p><p>The only prerequisite information needed to launch the tool is the location of the build tool folder itself and at least one file named <code>!UbtEnv.js</code> at the apex of the programming folder. The tool is normally launched from an editor that automatically plugs in the name of a file or folder. Each action can take a file name from which the relevant folder will be derived; some actions can take a folder, whether that&rsquo;s a source folder or the project folder.</p><p>For example, a command line might look like (noting that all filenames should be specified with &lsquo;/&rsquo; separators):</p>
+<pre><code>deno run --allow-all ~/dev/build/ubt/UbtEngine.js buildFile --file ~/dev/v360/java/src/com/venue360/admin/GetAllCountries.java
+deno run --allow-all ~/dev/build/ubt/UbtEngine.js buildFolder --folder ~/dev/v360/java/src/com/venue360/admin/
+</code></pre><p>The design intent of the system is to automatically discover the root of the development tree by searching up from the folder provided as an argument looking for scripts named <code>!UbtBuild.js</code> and <code>UbtEnv.js</code>. The first <code>!UbtBuild.js</code> marks the folder of the project and is executed to accomplish the build. The topmost <code>!UbtEnv.js</code> marks the &ldquo;apex&rdquo; of the development tree and all <code>!UbtEnv.js</code> scripts discovered are executed in top-down order for setup and bottom-up order for teardown.</p><p>The goal for build scripts is to be as isolated as reasonable from any specifics of <em>Deno</em>. This isolation is important to protect developers from Deno lock-in; however, individual builds may leverage Deno directly providing detail, including working code, is communicated to the team maintaining UBT. The programmer should bear in mind that any dependency on <code>Deno</code> becomes the project&rsquo;s responsibility should a JS Runtime platform change be made.</p><h2 id="implementation-details">Implementation Details</h2><p>The apex environment script (and there may be multiple others) need not actually contain anything; it&rsquo;s purpose is twofold: first to mark the apex folder and second to optionally perform any global setup and teardown actions, including overriding any specific properties of the programming context. It may provide a <code>setup()</code> and/or <code>teardown()</code>. What they do is up to the individual programmer, but care must be taken that it does nothing that another programmer necessarily needs to build any particular project.</p><p>Other, intermediate, <code>!UbtEnv.js</code> scripts may be used at any level, though there is little point in having one in a project folder, as anything it does can (and should) be done by the <code>!UbtBuild.js</code> script. Anything done in the project is most likely needed for all developers (there might conceivably be something unique the the developer, and then the project or global git settings would have to exclude <code>!UbtEnv.js</code> scripts).</p><h2 id="default-file-system-structure">Default File System Structure</h2><p>The engine makes numerous default assumptions about the structure of the programming tree, but all of these can be overridden by one or more <code>UbtEnv.js</code> scripts in the tree structure above the project being acted upon. This defaults are a reasonable default for programmers which has proven itself without locking any given programmer to any specific structure.</p>
+<div class="table"><table>
+  <thead>
+    <tr>
+      <th>Default Folder </th>
+      <th>Context Property </th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>&lt;something&gt;</code> </td>
+      <td><code>apxFolder</code> </td>
+      <td>The top-level for all development folders (location of topmost <code>!UbtEnv.js</code>).</td>
+    </tr>
+    <tr>
+      <td><code>. build</code> </td>
+      <td><code>bldFolder</code> </td>
+      <td>Build tools (can check out the build project from Git).</td>
+    </tr>
+    <tr>
+      <td><code>. . bdd</code> </td>
+      <td><code>build.bddFolder</code> </td>
+      <td>Support for JavaScript Behavior Driven Development tests.</td>
+    </tr>
+    <tr>
+      <td><code>. . bin</code> </td>
+      <td><code>build.binFolder</code> </td>
+      <td>Platform-independent build tools (usually Java).</td>
+    </tr>
+    <tr>
+      <td><code>. . cfg</code> </td>
+      <td><code>build.cfgFolder</code> </td>
+      <td>Build configuration files (linting, obfuscation, etc).</td>
+    </tr>
+    <tr>
+      <td><code>. . lib</code> </td>
+      <td><code>build.libFolder</code> </td>
+      <td>Build library packages.</td>
+    </tr>
+    <tr>
+      <td><code>. . ubt</code> </td>
+      <td><code>build.ubtFolder</code> </td>
+      <td>Universal Build Tool.</td>
+    </tr>
+    <tr>
+      <td><code>. code</code> </td>
+      <td><code>cdeFolder</code> </td>
+      <td>Folder for all projects.</td>
+    </tr>
+    <tr>
+      <td><code>. . (project)</code> </td>
+      <td><code>prjFolder</code> </td>
+      <td>Project being built, determined by presence of <code>~UbtBuild.js</code>.</td>
+    </tr>
+    <tr>
+      <td><code>. . . bin</code> </td>
+      <td><code>project.binFolder</code> </td>
+      <td>Project binary executables.</td>
+    </tr>
+    <tr>
+      <td><code>. . . bld</code> </td>
+      <td><code>project.bldFolder</code> </td>
+      <td>Project build artifacts to be committed.</td>
+    </tr>
+    <tr>
+      <td><code>. . . lib</code> </td>
+      <td><code>project.libFolder</code> </td>
+      <td>Project library packages.</td>
+    </tr>
+    <tr>
+      <td><code>. . . src</code> </td>
+      <td><code>project.srcFolder</code> </td>
+      <td>Project source files.</td>
+    </tr>
+    <tr>
+      <td><code>. . . tgt</code> </td>
+      <td><code>project.tgtFolder</code> </td>
+      <td>Project targets (for classes, native modules, etc).</td>
+    </tr>
+    <tr>
+      <td><code>. . . zbuild</code> </td>
+      <td><code>project.wrkFolder</code> </td>
+      <td>Work folder created and destroyed by build engine.</td>
+    </tr>
+    <tr>
+      <td><code>. doc</code> </td>
+      <td><code>docFolder</code> </td>
+      <td>Developer&rsquo;s documentation.</td>
+    </tr>
+    <tr>
+      <td><code>. sdk</code> </td>
+      <td><code>sdkFolder</code> </td>
+      <td>Software Development Kits and runtimes.</td>
+    </tr>
+    <tr>
+      <td><code>. . deno</code> </td>
+      <td><code>js.jsrFolder</code> </td>
+      <td>Deno JavaScript runtime.</td>
+    </tr>
+    <tr>
+      <td><code>. . git</code> </td>
+      <td><code>git.gitFolder</code> </td>
+      <td>Git folder.</td>
+    </tr>
+    <tr>
+      <td><code>. . jdk-n</code> </td>
+      <td><code>java.jdkFolder</code> </td>
+      <td>JDK folder(s), where <em>n</em> is the major version.</td>
+    </tr>
+    <tr>
+      <td><code>. . jre</code> </td>
+      <td><code>java.jreFolder</code> </td>
+      <td>Default folder for running tools.</td>
+    </tr>
+    <tr>
+      <td><code>. . maven</code> </td>
+      <td><code>maven.mvnFolder</code> </td>
+      <td>Maven home folder.</td>
+    </tr>
+    <tr>
+      <td><code>. test</code> </td>
+      <td><code>tstFolder</code> </td>
+      <td>Developer&rsquo;s test installations (*not* unit tests).</td>
+    </tr>
+    <tr>
+      <td><code>. . (project)</code> </td>
+      <td><code>project.tstFolder</code> </td>
+      <td>Developer&rsquo;s test installation for this project.</td>
+    </tr>
+    <tr>
+      <td><code>w:/asdbld/archive</code> </td>
+      <td><code>arcFolder</code> </td>
+      <td>Contains archives for versioned projects. (Deprecated for removal.)</td>
+    </tr>
+  </tbody>
+</table></div><p><strong>A Note About JDKs</strong> : Newer JDK compilers are capable of targeting many prior Java versions. Projects may either use the specific JDK for the target version, or use a later JDK version with the <code>--release nn</code> option. The most important consideration is to consistently use the same JDK for any given project as different compilers may produce different class bytecode. Unless otherwise necessary, projects should target LTS versions, JDK 8, 11, 17, 21, etc.</p><h2 id="build-action-functions">Build Action Functions</h2><p>A build script exports the following standardized, asynchronous functions, referred to as &ldquo;Build Actions&rdquo;. These are passed the build context and the <code>UbtApi</code> module which provides functions to support builds.</p>
+<div class="table"><table>
+  <thead>
+    <tr>
+      <th>Action Function </th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>buildFile(ctx,ubt)</code> </td>
+      <td>Builds the specified file.</td>
+    </tr>
+    <tr>
+      <td><code>buildFolder(ctx,ubt)</code> </td>
+      <td>Builds all files which need building in the specified folder.</td>
+    </tr>
+    <tr>
+      <td><code>buildProject(ctx,ubt)</code> </td>
+      <td>Builds all files in the entire project.</td>
+    </tr>
+    <tr>
+      <td><code>packagePrimary(ctx,ubt)</code> </td>
+      <td>Packages any binaries as needed, such as building JARs or linking executables.</td>
+    </tr>
+    <tr>
+      <td><code>packageSecondary(ctx,ubt)</code> </td>
+      <td>Packages any additional resources, builds documentation, etc.</td>
+    </tr>
+    <tr>
+      <td><code>packageFinal(ctx,ubt)</code> </td>
+      <td>Packages everything for the project and produces production/deployment artifacts.</td>
+    </tr>
+  </tbody>
+</table></div><p>Scripts are loaded as ES Modules and all build actions are asynchronous which is necessary for almost all system interactions which could potentially block. This is largely an implementation side-effect and can be ignored using <code>await</code> where required, coding the build script functionally and procedurally. It is not envisaged that any builds will benefit sufficiently from parallel processing to be worth the added complication.</p><h2 id="fsinfo-file-system-information">FsInfo - File System Information</h2><p>The <code>FsInfo</code> structure is an abstracted view over a file system entry which provides filesystem properties with a specific path and useful subparts of the path. The path represents a folder if it exists <em>and</em> is a folder, or if it was specified with a trailing &lsquo;/&rsquo;. <code>FsInfo</code> objects always use forward slash separators, even on Windows.</p><p>All build functions allow a path to be provided as either a string or an <code>FsInfo</code>. Many build functions, such as <code>findFiles</code>, return <code>FsInfo</code> objects.</p>
+<div class="table"><table>
+  <thead>
+    <tr>
+      <th>Property </th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td colspan="2"><em>Pathname Related</em> </td>
+    </tr>
+    <tr>
+      <td><code>name</code> </td>
+      <td>Node name &ndash; the &ldquo;leaf&rdquo; node.</td>
+    </tr>
+    <tr>
+      <td><code>nameBase</code> </td>
+      <td>Node name&rsquo;s base without the extension.</td>
+    </tr>
+    <tr>
+      <td><code>nameExt</code> </td>
+      <td>Node name&rsquo;s extenstion.</td>
+    </tr>
+    <tr>
+      <td><code>parent</code> </td>
+      <td>Parent path.</td>
+    </tr>
+    <tr>
+      <td><code>path</code> </td>
+      <td>Full path.</td>
+    </tr>
+    <tr>
+      <td colspan="2"><em>State of Node When <code>FsInfo</code> Was Created or Refreshed</em> </td>
+    </tr>
+    <tr>
+      <td><code>exists</code> </td>
+      <td>Whether the path exists</td>
+    </tr>
+    <tr>
+      <td><code>isFile</code> </td>
+      <td>Whether the path represents a file.</td>
+    </tr>
+    <tr>
+      <td><code>isFolder</code> </td>
+      <td>Whether the path represents a folder.</td>
+    </tr>
+    <tr>
+      <td><code>isSymlink</code> </td>
+      <td>Whether the path is a symlink.</td>
+    </tr>
+    <tr>
+      <td><code>modified</code> </td>
+      <td>The modification date/timestamp in ISO8601 format.</td>
+    </tr>
+    <tr>
+      <td><code>size</code> </td>
+      <td>The size of the node, as a number.</td>
+    </tr>
+  </tbody>
+</table></div><p>Note that the file-system properties are accurate at the time the object is created and are not dynamically updated, except when an <code>FsInfo</code> is used to create or delete a folder, where the exists flag is updated to match.</p><h2 id="file-system-globs">File System Globs</h2><p>Files are specified using Bash <a href="https://www.linuxjournal.com/content/bash-extended-globbing">extended glob syntax</a>.</p>
+<div class="table"><table>
+  <thead>
+    <tr>
+      <th>Pattern </th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>*</code> </td>
+      <td>Match zero or more characters.</td>
+    </tr>
+    <tr>
+      <td><code>?</code> </td>
+      <td>Match exactly one character.</td>
+    </tr>
+    <tr>
+      <td><code>?*</code> </td>
+      <td>Match one or more characters.</td>
+    </tr>
+    <tr>
+      <td><code>[...]</code> </td>
+      <td>Match exactly one of a range of characters, using the same notation as a regex class.</td>
+    </tr>
+    <tr>
+      <td><code>@(pattern-list)</code> </td>
+      <td>Matches one occurrence of the given patterns.</td>
+    </tr>
+    <tr>
+      <td><code>?(pattern-list)</code> </td>
+      <td>Matches zero or one occurrence of the given patterns.</td>
+    </tr>
+    <tr>
+      <td><code>*(pattern-list)</code> </td>
+      <td>Matches zero or more occurrences of the given patterns.</td>
+    </tr>
+    <tr>
+      <td><code>+(pattern-list)</code> </td>
+      <td>Matches one or more occurrences of the given patterns.</td>
+    </tr>
+    <tr>
+      <td><code>!(pattern-list)</code> </td>
+      <td>Matches anything <em>except</em> one of the given patterns.</td>
+    </tr>
+  </tbody>
+</table></div><p>Patterns in a pattern list are separated by a vertical line character (e.g <code>@(*.class|*.exe)</code>).</p><h2 id="build-context-example">Build Context Example</h2><p>The following dump shows an example context from a developer system, as of 2025-10-14. Note that all paths for folders end with a <code>/</code>.</p><p>NB: All folders which are not at the root of the context are derived from from root folders by the engine <em>after</em> environment script setup functions have run and before the build script setup runs. The are set by the engine only if the specific folder is not already set. This allows environment scripts to override a root folder and have that automatically take effect for all folders derived from it.</p>
+<pre><code>Build Context: {
+    action: &quot;buildFile&quot;
+    apxFolder: {
+        exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-10-10T20:13:24.204Z&quot;, name: &quot;pgmr
+        &quot;, nameBase: &quot;pgmr&quot;, nameExt: &quot;&quot;, parent: &quot;D:/&quot;, path: &quot;D:/pgmr/&quot;, size: 0, toString: anon()
+        }
+    arcFolder: {
+        exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-09-20T01:03:37.285Z&quot;, name: &quot;arch
+        ive&quot;, nameBase: &quot;archive&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/&quot;, path: &quot;D:/pgmr/archive/&quot;, size: 0, toString: anon()
+        }
+    bldFolder: {
+        exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-10-15T00:59:22.305Z&quot;, name: &quot;buil
+        d&quot;, nameBase: &quot;build&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/&quot;, path: &quot;D:/pgmr/build/&quot;, size: 0, toString: anon()
+        }
+    cdeFolder: {
+        exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-09-22T22:28:52.337Z&quot;, name: &quot;code
+        &quot;, nameBase: &quot;code&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/&quot;, path: &quot;D:/pgmr/code/&quot;, size: 0, toString: anon()
+        }
+    docFolder: {
+        exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-06-09T23:37:55.722Z&quot;, name: &quot;doc&quot;
+        , nameBase: &quot;doc&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/&quot;, path: &quot;D:/pgmr/doc/&quot;, size: 0, toString: anon()
+        }
+    file: {
+        exists: true, isFile: true, isFolder: false, isSymlink: false, modified: &quot;2025-10-15T01:00:07.885Z&quot;, name: &quot;UbtA
+        pi.js&quot;, nameBase: &quot;UbtApi&quot;, nameExt: &quot;.js&quot;, parent: &quot;D:/pgmr/build/src/ubt/&quot;, path: &quot;D:/pgmr/build/src/ubt/UbtAp
+        i.js&quot;, size: 86442, toString: anon()
+        }
+    folder: {
+        exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-10-14T00:20:59.765Z&quot;, name: &quot;ubt&quot;
+        , nameBase: &quot;ubt&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/build/src/&quot;, path: &quot;D:/pgmr/build/src/ubt/&quot;, size: 0, toString:
+         anon()
+        }
+    prjFolder: {
+        exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-10-15T01:00:12.159Z&quot;, name: &quot;buil
+        d&quot;, nameBase: &quot;build&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/&quot;, path: &quot;D:/pgmr/build/&quot;, size: 0, toString: anon()
+        }
+    sdkFolder: {
+        exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-10-10T23:08:24.618Z&quot;, name: &quot;sdk&quot;
+        , nameBase: &quot;sdk&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/&quot;, path: &quot;D:/pgmr/sdk/&quot;, size: 0, toString: anon()
+        }
+    tstFolder: {
+        exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-10-09T20:51:47.001Z&quot;, name: &quot;test
+        &quot;, nameBase: &quot;test&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/&quot;, path: &quot;D:/pgmr/test/&quot;, size: 0, toString: anon()
+        }
+    build: {
+        dumpOnError: true, noTruncate: false
+        bddFolder: {
+            exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-08-12T20:23:47.509Z&quot;, name: &quot;
+            bdd&quot;, nameBase: &quot;bdd&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/build/&quot;, path: &quot;D:/pgmr/build/bdd/&quot;, size: 0, toString:
+             anon()
+            }
+        binFolder: {
+            exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-10-14T00:20:59.705Z&quot;, name: &quot;
+            bin&quot;, nameBase: &quot;bin&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/build/&quot;, path: &quot;D:/pgmr/build/bin/&quot;, size: 0, toString:
+             anon()
+            }
+        cfgFolder: {
+            exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-07-25T03:06:30.697Z&quot;, name: &quot;
+            cfg&quot;, nameBase: &quot;cfg&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/build/&quot;, path: &quot;D:/pgmr/build/cfg/&quot;, size: 0, toString:
+             anon()
+            }
+        libFolder: {
+            exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-10-14T00:11:56.475Z&quot;, name: &quot;
+            lib&quot;, nameBase: &quot;lib&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/build/&quot;, path: &quot;D:/pgmr/build/lib/&quot;, size: 0, toString:
+             anon()
+            }
+        ubtFolder: {
+            exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-10-14T00:20:59.765Z&quot;, name: &quot;
+            ubt&quot;, nameBase: &quot;ubt&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/build/&quot;, path: &quot;D:/pgmr/build/ubt/&quot;, size: 0, toString:
+             anon()
+            }
+        }
+    git: {
+        gitFolder: {
+            exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-09-30T18:41:24.683Z&quot;, name: &quot;
+            git&quot;, nameBase: &quot;git&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/sdk/&quot;, path: &quot;D:/pgmr/sdk/git/&quot;, size: 0, toString: ano
+            n()
+            }
+        }
+    java: {
+        classpath: &quot;&quot;, jdkFolderTpt: &quot;{{sdkFolder.path}}jdk-{{ver}}/&quot;, lint: &quot;Normal&quot;, maxErrors: 10
+        jdkFolder: {
+            exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-06-11T00:57:20.697Z&quot;, name: &quot;
+            jdk-15&quot;, nameBase: &quot;jdk-15&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/sdk/&quot;, path: &quot;D:/pgmr/sdk/jdk-15/&quot;, size: 0, toSt
+            ring: anon()
+            }
+        jreFolder: {
+            exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-06-11T00:26:50.037Z&quot;, name: &quot;
+            jdk-21&quot;, nameBase: &quot;jdk-21&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/sdk/&quot;, path: &quot;D:/pgmr/sdk/jdk-21/&quot;, size: 0, toSt
+            ring: anon()
+            }
+        jdkArgs: []
+        jreArgs: []
+        }
+    js: {
+        compactOutput: true, lint: &quot;Normal&quot;
+        jsrFolder: {
+            exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-10-10T23:50:41.755Z&quot;, name: &quot;
+            deno&quot;, nameBase: &quot;deno&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/sdk/&quot;, path: &quot;D:/pgmr/sdk/deno/&quot;, size: 0, toString:
+            anon()
+            }
+        }
+    maven: {
+        jreFolder: {
+            exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-06-11T00:26:38.577Z&quot;, name: &quot;
+            jdk-17&quot;, nameBase: &quot;jdk-17&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/sdk/&quot;, path: &quot;D:/pgmr/sdk/jdk-17/&quot;, size: 0, toSt
+            ring: anon()
+            }
+        mvnFolder: {
+            exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-07-13T01:30:34.000Z&quot;, name: &quot;
+            maven&quot;, nameBase: &quot;maven&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/sdk/&quot;, path: &quot;D:/pgmr/sdk/maven/&quot;, size: 0, toStrin
+            g: anon()
+            }
+        }
+    project: {
+        binFolder: {
+            exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-10-14T00:20:59.705Z&quot;, name: &quot;
+            bin&quot;, nameBase: &quot;bin&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/build/&quot;, path: &quot;D:/pgmr/build/bin/&quot;, size: 0, toString:
+             anon()
+            }
+        bldFolder: {
+            exists: false, isFile: false, isFolder: true, isSymlink: false, modified: &quot;1970-01-01T00:00:00.000Z&quot;, name:
+            &quot;bld&quot;, nameBase: &quot;bld&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/build/&quot;, path: &quot;D:/pgmr/build/bld/&quot;, size: 0, toString
+            : anon()
+            }
+        libFolder: {
+            exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-10-14T00:11:56.475Z&quot;, name: &quot;
+            lib&quot;, nameBase: &quot;lib&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/build/&quot;, path: &quot;D:/pgmr/build/lib/&quot;, size: 0, toString:
+             anon()
+            }
+        srcFolder: {
+            exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-10-14T00:20:59.720Z&quot;, name: &quot;
+            src&quot;, nameBase: &quot;src&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/build/&quot;, path: &quot;D:/pgmr/build/src/&quot;, size: 0, toString:
+             anon()
+            }
+        tgtFolder: {
+            exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;2025-10-14T00:20:59.720Z&quot;, name: &quot;
+            src&quot;, nameBase: &quot;src&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/build/&quot;, path: &quot;D:/pgmr/build/src/&quot;, size: 0, toString:
+             anon()
+            }
+        tstFolder: {
+            exists: false, isFile: true, isFolder: false, isSymlink: false, modified: &quot;1970-01-01T00:00:00.000Z&quot;, name:
+            &quot;build&quot;, nameBase: &quot;build&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/test/&quot;, path: &quot;D:/pgmr/test/build&quot;, size: 0, toStr
+            ing: anon()
+            }
+        wrkFolder: {
+            exists: true, isFile: false, isFolder: true, isSymlink: false, modified: &quot;1970-01-01T00:00:00.000Z&quot;, name: &quot;
+            zbuild&quot;, nameBase: &quot;zbuild&quot;, nameExt: &quot;&quot;, parent: &quot;D:/pgmr/build/&quot;, path: &quot;D:/pgmr/build/zbuild/&quot;, size: 0,
+            toString: anon()
+            }
+        }
+    }
+</code></pre><h2 id="developer-setup">Developer Setup</h2><h6 id="instructions">Instructions</h6><p>Set up for a developer is typically straight-forward:</p>
+<ol>
+  <li>Create the environment script named <code>UbtEnv.js</code> in the root programming folder (<a href="#environment-script">template below</a>).</li>
+  <li>For a brand-new set up, create the folder structure recommended below in your programming folder.</li>
+  <li>For an existing set up that you want to retain, use the environment script <code>setup()</code> function to customize the  context folders. If necessary, create other <code>UbtEnv.js</code> scripts in subfolders to adapt folders for those trees.</li>
+  <li>Check out this build-tool repository into the build subfolder of your root programming folder.</li>
+  <li>Download the <a href="https://github.com/denoland/deno/releases" target="_blank">latest version of Deno</a> to your  sdk/deno folder. Deno is a single binary executable with no external dependencies and works on Linux, OSX, and  Windows.</li>
+  <li>Set up your editor&rsquo;s tools with the build command lines, or write O/S scripts to serve this purpose.</li>
+</ol><p>NB: The <code>build</code> project has two symlinks in the root to enable the project folder to be used for both building projects and developing the build tools themselves. You may need to manually create these links depending on git config:</p>
+<ul>
+  <li>bdd =&gt; ./src/bdd</li>
+  <li>ubt =&gt; ./src/ubt</li>
+</ul><h6 id="build-tool-command-lines">Build Tool Command Lines</h6><p>These command lines assume that the environment variable <code>PROGRAMMING</code> has been set to the root of your programming tree and show the syntax for the Windows command shell; for powershell use <code>$Env:PROGRAMMING</code> instead of <code>%PROGRAMMING%</code> and for BASh use <code>$PROGRAMMING</code>.</p>
+<pre><code>~/dev/sdk/deno/deno run --no-npm --allow-all ~/dev/build/ubt/UbtEngine.js buildFile --file ${file}
+~/dev/sdk/deno/deno run --no-npm --allow-all ~/dev/build/ubt/UbtEngine.js buildFolder --folder ${fileDirname}
+~/dev/sdk/deno/deno run --no-npm --allow-all ~/dev/build/ubt/UbtEngine.js buildProject --folder ${workspaceFolder}
+~/dev/sdk/deno/deno run --no-npm --allow-all ~/dev/build/ubt/UbtEngine.js packagePrimary --folder ${workspaceFolder}
+~/dev/sdk/deno/deno run --no-npm --allow-all ~/dev/build/ubt/UbtEngine.js packageFinal --folder ${workspaceFolder}
+</code></pre><h6 id="minimal-programming-folder-structure">Minimal Programming Folder Structure</h6>
+<pre><code>build
+code
+  (folders for each project)
+doc
+sdk
+  deno
+  jdk-8
+  jdk-11
+  jdk-15
+test
+  (folders for test installations)
+</code></pre><h6 id="templates">Templates</h6><p><strong>Environment Script</strong></p>
+<pre><code>// UBT Environment Setup
+&quot;use strict&quot;
+
+// *********************************************************************************************************************
+// SETUP AND TEARDOWN
+// *********************************************************************************************************************
+
+export async function setup(ctx,ubt) {
+    }
+
+export async function teardown(ctx,ubt) {
+    }
+
+// *********************************************************************************************************************
+</code></pre><p><strong>Build Script</strong></p><p>An example build script follows which compiles Java sources and validates JS sources, and runs tests for both kinds of files. No packaging is needed or done.</p>
+<pre><code>// ---------------------------------------------------------------------------------------------------------------------
+// Build Script: See documentation for Ultraviolet Build Tool (UBT).
+// ---------------------------------------------------------------------------------------------------------------------
+
+&quot;use strict&quot;;
+
+let     log;
+
+// *********************************************************************************************************************
+// SETUP AND TEARDOWN
+// *********************************************************************************************************************
+
+export function setup(ctx,ubt) {
+    log = ubt.log;
+    ctx.build.dumpOnError = true;
+
+    ubt.buildSequence(packagePrimary  ,[ buildProject ]);
+    ubt.buildSequence(packageFinal    ,[ buildProject, packagePrimary, packageSecondary ]);
+
+    ubt.createFolders(ctx.project.wrkFolder);
+    }
+
+export function teardown(ctx,ubt) {
+    ubt.deleteFolders(ctx.project.wrkFolder);
+    }
+
+// *********************************************************************************************************************
+// BUILD ACTIONS
+// *********************************************************************************************************************
+
+export async function buildFile(ctx,ubt) {
+    if(ctx.file.nameExt===&quot;.java&quot;) {
+        await ubt.compileJava(ctx.file);
+        await ubt.runJavaTests(ctx.file);
+        }
+    if(ctx.file.nameExt===&quot;.js&quot;  ) {
+        await ubt.validateJs(ctx.file);
+        await ubt.runJsTests(ctx.file);
+        }
+    }
+
+export async function buildFolder(ctx,ubt) {
+    await ubt.deleteFiles(ubt.findFiles(ctx.folder,&quot;*.class&quot;   ));
+    await ubt.compileJava(ubt.findFiles(ctx.folder,&quot;!(Z)*.java&quot;));
+    await ubt.validateJs (ubt.findFiles(ctx.folder,&quot;!(Z)*.js&quot;  ));
+    if(ctx.action===&quot;folder&quot;) {
+        await ubt.runJavaTests(ubt.findFiles(ctx.folder,&quot;!(Z)*.java&quot;));
+        await ubt.runJsTests  (ubt.findFiles(ctx.folder,&quot;!(Z)*.js&quot;  ));
+        }
+    }
+
+export async function buildProject(ctx,ubt) {
+    if(ctx.action===&quot;packageFinal&quot;) {
+        ubt.heading2(&quot;Update Version &amp; Build&quot;);
+        await ubt.runJava(`${ctx.build.binFolder}SourceBuild.jar`, [
+            &quot;VERSION&quot;,
+            `${ctx.project.srcFolder}Version.txt`,
+            `${ctx.project.srcFolder}...`,
+            ], { noLog: true });
+        }
+
+    ubt.heading2(&quot;Build and validate all files&quot;);
+    log(`Delete ${ctx.prjFolder}**/*.class`);
+    ubt.deleteFiles(ubt.findFiles(ctx.srcFolder,&quot;*.class&quot;));
+    log(&quot;    - Done&quot;);
+    await ubt.compileJava(ubt.findFiles(ctx.srcFolder,&quot;**/!(Z)*.java&quot;));
+    await ubt.validateJs (ubt.findFiles(ctx.srcFolder,&quot;**/!(Z)*.js&quot;  ));
+    }
+
+export async function packagePrimary(ctx,ubt) {
+    }
+
+export async function packageSecondary(ctx,ubt) {
+    }
+
+export async function packageFinal(_ctx,_ubt) {
+    }
+
+// *********************************************************************************************************************
+</code></pre><p><strong>Examples</strong></p><h6 id="vscode-user-tasks-complete">VSCode User Tasks (Complete)</h6><p>The following VSCode configuration will set up all UBT compiles. Use <code>CTRL+SHIFT+P</code>, &ldquo;Tasks: Open User Tasks&rdquo;.</p><p>Note that these tasks are merely conventions; any development team can execute whatever functions they want and associate them with whatever hot-keys they want. But these are recommended as a minimal set so that all developers who interact will have the same build options across all projects.</p>
+<pre><code>{
+// See https://go.microsoft.com/fwlink/?LinkId=733558 for the documentation about the tasks.json format
+&quot;version&quot;: &quot;2.0.0&quot;,
+
+&quot;presentation&quot;: {
+    &quot;clear&quot;                 : true,
+    &quot;echo&quot;                  : true,
+    &quot;focus&quot;                 : true,
+    &quot;panel&quot;                 : &quot;shared&quot;,
+    &quot;reveal&quot;                : &quot;always&quot;,
+    &quot;showReuseMessage&quot;      : false,
+    },
+
+&quot;options&quot;: {
+    &quot;cwd&quot;                   : &quot;${workspaceFolder}&quot; },
+
+&quot;tasks&quot;: [{
+    // =================================================================================================================
+    &quot;label&quot;                 : &quot;Build File&quot;,
+    &quot;type&quot;                  : &quot;shell&quot;,
+    &quot;linux&quot;                 : { &quot;command&quot;: &quot;${env:PROGRAMMING}/sdk/deno/deno&quot; },
+    &quot;windows&quot;               : { &quot;command&quot;: &quot;${env:PROGRAMMING}\\sdk\\deno\\deno&quot; },
+    &quot;args&quot;                  : [ &quot;run&quot;,&quot;--no-npm&quot;,&quot;--allow-all&quot;,&quot;${env:PROGRAMMING}/build/ubt/UbtEngine.js&quot;,&quot;buildFile&quot;,&quot;--file&quot;,&quot;${file}&quot; ],
+    &quot;options&quot;               : { &quot;cwd&quot;: &quot;${fileDirname}&quot; },
+    &quot;group&quot;                 : { &quot;kind&quot;: &quot;build&quot;, &quot;isDefault&quot;: true },
+    &quot;presentation&quot;          : { &quot;group&quot;: &quot;build&quot; },
+    },{
+    &quot;label&quot;                 : &quot;Build Folder&quot;,
+    &quot;type&quot;                  : &quot;shell&quot;,
+    &quot;linux&quot;                 : { &quot;command&quot;: &quot;${env:PROGRAMMING}/sdk/deno/deno&quot; },
+    &quot;windows&quot;               : { &quot;command&quot;: &quot;${env:PROGRAMMING}\\sdk\\deno\\deno&quot; },
+    &quot;args&quot;                  : [ &quot;run&quot;,&quot;--no-npm&quot;,&quot;--allow-all&quot;,&quot;${env:PROGRAMMING}/build/ubt/UbtEngine.js&quot;,&quot;buildFolder&quot;,&quot;--folder&quot;,&quot;${fileDirname}&quot; ],
+    &quot;options&quot;               : { &quot;cwd&quot;: &quot;${fileDirname}&quot; },
+    &quot;presentation&quot;          : { &quot;group&quot;: &quot;build&quot; },
+    },{
+    &quot;label&quot;                 : &quot;Build Project&quot;,
+    &quot;type&quot;                  : &quot;shell&quot;,
+    &quot;linux&quot;                 : { &quot;command&quot;: &quot;${env:PROGRAMMING}/sdk/deno/deno&quot; },
+    &quot;windows&quot;               : { &quot;command&quot;: &quot;${env:PROGRAMMING}\\sdk\\deno\\deno&quot; },
+    &quot;args&quot;                  : [ &quot;run&quot;,&quot;--no-npm&quot;,&quot;--allow-all&quot;,&quot;${env:PROGRAMMING}/build/ubt/UbtEngine.js&quot;,&quot;buildProject&quot;,&quot;--folder&quot;,&quot;${fileDirname}&quot; ],
+    &quot;options&quot;               : { &quot;cwd&quot;: &quot;${fileDirname}&quot; },
+    &quot;presentation&quot;          : { &quot;group&quot;: &quot;build&quot; },
+    // =================================================================================================================
+    },{
+    // =================================================================================================================
+    &quot;label&quot;                 : &quot;Package Binaries&quot;,
+    &quot;type&quot;                  : &quot;shell&quot;,
+    &quot;linux&quot;                 : { &quot;command&quot;: &quot;${env:PROGRAMMING}/sdk/deno/deno&quot; },
+    &quot;windows&quot;               : { &quot;command&quot;: &quot;${env:PROGRAMMING}\\sdk\\deno\\deno&quot; },
+    &quot;args&quot;                  : [ &quot;run&quot;,&quot;--no-npm&quot;,&quot;--allow-all&quot;,&quot;${env:PROGRAMMING}/build/ubt/UbtEngine.js&quot;,&quot;packagePrimary&quot;,&quot;--folder&quot;,&quot;${fileDirname}&quot; ],
+    &quot;options&quot;               : { &quot;cwd&quot;: &quot;${workspaceFolder}&quot; },
+    &quot;presentation&quot;          : { &quot;group&quot;: &quot;build&quot; },
+    },{
+    &quot;label&quot;                 : &quot;Package Other&quot;,
+    &quot;type&quot;                  : &quot;shell&quot;,
+    &quot;linux&quot;                 : { &quot;command&quot;: &quot;${env:PROGRAMMING}/sdk/deno/deno&quot; },
+    &quot;windows&quot;               : { &quot;command&quot;: &quot;${env:PROGRAMMING}\\sdk\\deno\\deno&quot; },
+    &quot;args&quot;                  : [ &quot;run&quot;,&quot;--no-npm&quot;,&quot;--allow-all&quot;,&quot;${env:PROGRAMMING}/build/ubt/UbtEngine.js&quot;,&quot;packageSecondary&quot;,&quot;--folder&quot;,&quot;${fileDirname}&quot; ],
+    &quot;options&quot;               : { &quot;cwd&quot;: &quot;${workspaceFolder}&quot; },
+    &quot;presentation&quot;          : { &quot;group&quot;: &quot;build&quot; },
+    },{
+    &quot;label&quot;                 : &quot;Package Project&quot;,
+    &quot;type&quot;                  : &quot;shell&quot;,
+    &quot;linux&quot;                 : { &quot;command&quot;: &quot;${env:PROGRAMMING}/sdk/deno/deno&quot; },
+    &quot;windows&quot;               : { &quot;command&quot;: &quot;${env:PROGRAMMING}\\sdk\\deno\\deno&quot; },
+    &quot;args&quot;                  : [ &quot;run&quot;,&quot;--no-npm&quot;,&quot;--allow-all&quot;,&quot;${env:PROGRAMMING}/build/ubt/UbtEngine.js&quot;,&quot;packageFinal&quot;,&quot;--folder&quot;,&quot;${fileDirname}&quot; ],
+    &quot;options&quot;               : { &quot;cwd&quot;: &quot;${workspaceFolder}&quot; },
+    &quot;presentation&quot;          : { &quot;group&quot;: &quot;build&quot; },
+    // =================================================================================================================
+    },{
+    // =================================================================================================================
+    &quot;label&quot;                 : &quot;Run Variation 1&quot;,
+    &quot;type&quot;                  : &quot;shell&quot;,
+    &quot;linux&quot;                 : { &quot;command&quot;: &quot;${env:PROGRAMMING}/sdk/deno/deno&quot; },
+    &quot;windows&quot;               : { &quot;command&quot;: &quot;${env:PROGRAMMING}\\sdk\\deno\\deno&quot; },
+    &quot;args&quot;                  : [ &quot;run&quot;,&quot;--no-npm&quot;,&quot;--allow-all&quot;,&quot;${env:PROGRAMMING}/build/ubt/UbtEngine.js&quot;,&quot;runVariation1&quot;,&quot;--folder&quot;,&quot;${fileDirname}&quot; ],
+    &quot;options&quot;               : { &quot;cwd&quot;: &quot;${workspaceFolder}&quot; },
+    &quot;presentation&quot;          : { &quot;group&quot;: &quot;run-1&quot; },
+    },{
+    &quot;label&quot;                 : &quot;Run Variation 2&quot;,
+    &quot;type&quot;                  : &quot;shell&quot;,
+    &quot;linux&quot;                 : { &quot;command&quot;: &quot;${env:PROGRAMMING}/sdk/deno/deno&quot; },
+    &quot;windows&quot;               : { &quot;command&quot;: &quot;${env:PROGRAMMING}\\sdk\\deno\\deno&quot; },
+    &quot;args&quot;                  : [ &quot;run&quot;,&quot;--no-npm&quot;,&quot;--allow-all&quot;,&quot;${env:PROGRAMMING}/build/ubt/UbtEngine.js&quot;,&quot;runVariation2&quot;,&quot;--folder&quot;,&quot;${fileDirname}&quot; ],
+    &quot;options&quot;               : { &quot;cwd&quot;: &quot;${workspaceFolder}&quot; },
+    &quot;presentation&quot;          : { &quot;group&quot;: &quot;run-2&quot; },
+    },{
+    &quot;label&quot;                 : &quot;Run Variation 3&quot;,
+    &quot;type&quot;                  : &quot;shell&quot;,
+    &quot;linux&quot;                 : { &quot;command&quot;: &quot;${env:PROGRAMMING}/sdk/deno/deno&quot; },
+    &quot;windows&quot;               : { &quot;command&quot;: &quot;${env:PROGRAMMING}\\sdk\\deno\\deno&quot; },
+    &quot;args&quot;                  : [ &quot;run&quot;,&quot;--no-npm&quot;,&quot;--allow-all&quot;,&quot;${env:PROGRAMMING}/build/ubt/UbtEngine.js&quot;,&quot;runVariation3&quot;,&quot;--folder&quot;,&quot;${fileDirname}&quot; ],
+    &quot;options&quot;               : { &quot;cwd&quot;: &quot;${workspaceFolder}&quot; },
+    &quot;presentation&quot;          : { &quot;group&quot;: &quot;run-31&quot; },
+    // =================================================================================================================
+    }],
+}
+</code></pre><p>The following config will associate the hot-keys CTRL-1 to CTRL-6 with the build tasks defined above. Use <code>CTRL+SHIFT+P</code>, &ldquo;Preferences: Open Keyboard Shortcuts (JSON)&rdquo;. Add the following shortcuts to your file.</p>
+<pre><code>[
+    {
+        &quot;key&quot;: &quot;ctrl+1&quot;,
+        &quot;command&quot;: &quot;workbench.action.tasks.runTask&quot;,
+        &quot;args&quot;: &quot;Build File&quot;,
+        &quot;when&quot;: &quot;editorTextFocus&quot;,
+    },{
+        &quot;key&quot;: &quot;ctrl+2&quot;,
+        &quot;command&quot;: &quot;workbench.action.tasks.runTask&quot;,
+        &quot;args&quot;: &quot;Build Folder&quot;,
+        &quot;when&quot;: &quot;editorTextFocus&quot;,
+    },{
+        &quot;key&quot;: &quot;ctrl+3&quot;,
+        &quot;command&quot;: &quot;workbench.action.tasks.runTask&quot;,
+        &quot;args&quot;: &quot;Build Project&quot;,
+    },{
+        &quot;key&quot;: &quot;ctrl+4&quot;,
+        &quot;command&quot;: &quot;workbench.action.tasks.runTask&quot;,
+        &quot;args&quot;: &quot;Package Binaries&quot;,
+    },{
+        &quot;key&quot;: &quot;ctrl+5&quot;,
+        &quot;command&quot;: &quot;workbench.action.tasks.runTask&quot;,
+        &quot;args&quot;: &quot;Package Other&quot;,
+    },{
+        &quot;key&quot;: &quot;ctrl+6&quot;,
+        &quot;command&quot;: &quot;workbench.action.tasks.runTask&quot;,
+        &quot;args&quot;: &quot;Package Project&quot;,
+    }
+]
+</code></pre></article>
+
+    </main>
+
+    <footer>
+        <div class="subtext">Copyright , All Rights Reserved</div>
+        <div class="page-links"><span title="Previous Page (Arrow Left)"></span> | <a href="">top</a> | <a href="index.html">index</a> | <span title="Next Page (Arrow Right)"><a class='next' href='LICENSE.html'>next</a></span></div>
+    </footer>
+
+    <script>
+        setTimeout(() => {
+            document.querySelector("#dgc")?.focus();
+            },100);
+        document.onkeydown = (evt) => {
+            if(!evt.altKey && !evt.ctrlKey && !evt.metaKey && !evt.shiftKey) {
+                switch(evt.key) {
+                    case "ArrowLeft" : {
+                        let elm = document.querySelector("header .page-links .prev");
+                        if(elm) { location.href = elm.href; }
+                        evt.preventDefault();
+                        } break;
+                    case "ArrowRight" : {
+                        let elm = document.querySelector("header .page-links .next");
+                        if(elm) { location.href = elm.href; }
+                        evt.preventDefault();
+                        } break;
+                    }
+                }
+            };
+    </script>
+</body>
+</html>

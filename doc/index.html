@@ -1,0 +1,168 @@
+<!doctype html>
+<html>
+<head>
+    <title>Ultraviolet Build Tool</title>
+    <meta charset="utf-8">
+    <meta name="author" content="">
+    <link rel="stylesheet" type="text/css" href="style.css" media="screen,print">
+    <style>
+        body.all-in-one main#dgc { grid-area: idx; }
+        body.all-in-one main#doc { grid-area: bdy; }
+        body.all-in-one article {
+            margin: 0;
+            padding: 0;
+            }
+        body.all-in-one main#doc {
+            margin:0;
+            overflow: hidden;
+            padding: 0;
+            }
+        body:not(.all-in-one) main#doc {
+            display: none;
+            }
+    </style>
+</head>
+
+<body class="idx">
+    <script>
+        let body    = document.querySelector("body");
+        body.classList.add("all-in-one");
+    </script>
+
+    <header>
+        <div class="title">Ultraviolet Build Tool</div>
+        <div class="subtitle">Developer Documentation</div>
+        <div class="subtext">Version 1.00, Produced 2026-06-07</div>
+    </header>
+
+    <main id="dgc">
+        <article class="idx">
+<section class="idx">
+<div class="idxgrp">
+<h1 class="idxlnk"><a class="idxlnk" href="README.html">Ultaviolet Build Tool (UBT)</a></h1>
+<h2 class="idxlnk"><a class="idxlnk" href="README.html#overview-of-ubt">Overview of UBT</a></h2>
+<h2 class="idxlnk"><a class="idxlnk" href="README.html#implementation-details">Implementation Details</a></h2>
+<h2 class="idxlnk"><a class="idxlnk" href="README.html#default-file-system-structure">Default File System Structure</a></h2>
+<h2 class="idxlnk"><a class="idxlnk" href="README.html#build-action-functions">Build Action Functions</a></h2>
+<h2 class="idxlnk"><a class="idxlnk" href="README.html#fsinfo-file-system-information">FsInfo - File System Information</a></h2>
+<h2 class="idxlnk"><a class="idxlnk" href="README.html#file-system-globs">File System Globs</a></h2>
+<h2 class="idxlnk"><a class="idxlnk" href="README.html#build-context-example">Build Context Example</a></h2>
+<h2 class="idxlnk"><a class="idxlnk" href="README.html#developer-setup">Developer Setup</a></h2>
+<h2 class="idxlnk"><a class="idxlnk" href="LICENSE.html">MIT License</a></h2>
+</div>
+</section>
+<section class="idx">
+<div class="idxgrp">
+<h1 class="idxlnk"><a class="idxlnk" href="+UBT.html">Build Script</a></h1>
+<h1 class="idxlnk"><a class="idxlnk" href="UbtApi.html">Build Support API</a></h1>
+<h2 class="idxlnk"><a class="idxlnk" href="UbtApi.html#async-build-operations">Async Build Operations</a></h2>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-compilejava-srcfils-opts">compileJava</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-compilejavascript-srcfils-tgtfil-opts">compileJavaScript</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-createarchive-arc-spcs-opts">createArchive</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-generatedoc-tgt-args-opts">generateDoc</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-generatejavadoc-tgt-pkgs-opts">generateJavaDoc</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-rungit-cmd-args-opts">runGit</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-runjava-pgm-args-opts">runJava</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-runjavatests-fils-args-opts">runJavaTests</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-runjdktool-pgm-args-opts">runJdkTool</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-runjstests-fils-args-opts">runJsTests</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-runmaven-cmd-args-opts">runMaven</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-validatejs-srcfils-opts">validateJs</a></h3>
+<h2 class="idxlnk"><a class="idxlnk" href="UbtApi.html#sync-build-functions">Sync Build Functions</a></h2>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-buildsequence-bldfnc-prqfncs">buildSequence</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-copyartifacts-srcfdr-glb-ctx-opts">copyArtifacts</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-copyfiles-srcs-tgts-opts">copyFiles</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-createfolders-fdrs">createFolders</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-deletefiles-fils">deleteFiles</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-deletefolders-fdrs">deleteFolders</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-findfiles-fdr-glb">findFiles</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-findfolders-fdr-glb">findFolders</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-fsinfo-pth-subs">fsInfo</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-resolvejdkfolder-ver">resolveJdkFolder</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-readfiledata-pth">readFileData</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-readfiletext-pth">readFileText</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-writefiledata-pth-dta">writeFileData</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-writefiletext-pth-txt-opts">writeFileText</a></h3>
+<h2 class="idxlnk"><a class="idxlnk" href="UbtApi.html#sync-utility-functions">Sync Utility Functions</a></h2>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-alert-args">alert</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-confirm-args">confirm</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-datetime-dat">dateTime</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-datetimez-dat">dateTimeZ</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-deepprop-obj-key-dft">deepProp</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-error-args">Error</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-heading1-txt">heading1</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-heading2-txt">heading2</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-heading3-txt">heading3</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-log-args">log</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-objstring-lbl-obj-arr">objString</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-prompt-args">prompt</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-resolvetemplate-tpt-ctx-fbk">resolveTemplate</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-uuidv4-b64">uuidV4</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtApi.html#function-wraptext-txt">wrapText</a></h3>
+<h1 class="idxlnk"><a class="idxlnk" href="UbtEngine.html">Build Processing Engine</a></h1>
+<h1 class="idxlnk"><a class="idxlnk" href="UbtError.html">Build Error Class</a></h1>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtError.html#new-ubterror-cod-msg-dtl">new UbtError(cod,msg,dtl)</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="UbtError.html#wrap-err-dtl">wrap(err, dtl)</a></h3>
+</div>
+</section>
+<section class="idx">
+<div class="idxgrp">
+<h1 class="idxlnk"><a class="idxlnk" href="+BDD.html">Behaviour Driven Development</a></h1>
+<h2 class="idxlnk"><a class="idxlnk" href="+BDD.html#overview-of-bdd">Overview of BDD</a></h2>
+<h1 class="idxlnk"><a class="idxlnk" href="BddEnv.html">Test Environment</a></h1>
+<h2 class="idxlnk"><a class="idxlnk" href="BddEnv.html#api">API</a></h2>
+<h3 class="idxlnk"><a class="idxlnk" href="BddEnv.html#function-exitengine-stscod">exitEngine</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="BddEnv.html#function-createmodule-pthorurl-args">createModule</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="BddEnv.html#function-loadmodule-pthorurl">loadModule</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="BddEnv.html#function-loadfile-pthorurl">loadFile</a></h3>
+<h1 class="idxlnk"><a class="idxlnk" href="Litmus.html">Litmus (Test Execution Module)</a></h1>
+<h2 class="idxlnk"><a class="idxlnk" href="Litmus.html#general-api">General API</a></h2>
+<h3 class="idxlnk"><a class="idxlnk" href="Litmus.html#function-batch-nam-tsts-outpas-faifas">batch</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="Litmus.html#function-totalpassed">totalPassed</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="Litmus.html#function-totalfailed">totalFailed</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="Litmus.html#function-logtotals-add">logTotals</a></h3>
+<h2 class="idxlnk"><a class="idxlnk" href="Litmus.html#assertion-api">Assertion API</a></h2>
+<h3 class="idxlnk"><a class="idxlnk" href="Litmus.html#function-fails-rqdnam-fnc-args">fails</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="Litmus.html#function-objeq-rqdval-tstval-annotn">objEQ</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="Litmus.html#function-typeeq-rqdval-tstval-annotn">typeEQ</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="Litmus.html#function-valbtw-rqdlow-rqdhgh-tstval-annotn">valBTW</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="Litmus.html#function-valeq-rqdval-tstval-annotn">valEQ</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="Litmus.html#function-valne-rqdval-tstval-annotn">valNE</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="Litmus.html#function-vallt-rqdval-tstval-annotn">valLT</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="Litmus.html#function-valle-rqdval-tstval-annotn">valLE</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="Litmus.html#function-valgt-rqdval-tstval-annotn">valGT</a></h3>
+<h3 class="idxlnk"><a class="idxlnk" href="Litmus.html#function-valge-rqdval-tstval-annotn">valGE</a></h3>
+</div>
+</section>
+<section class="idx">
+<div class="idxgrp">
+<h1 class="idxlnk"><a class="idxlnk" href="+UTL.html">JavaScript Utility</a></h1>
+<h1 class="idxlnk"><a class="idxlnk" href="RewriteJavaDoc.html">Rewrite Documentation Comments</a></h1>
+<h3 class="idxlnk"><a class="idxlnk" href="RewriteJavaDoc.html#function-processfiles-glbs">processFiles</a></h3>
+</div></section>
+</article>
+
+    </main>
+
+    <main id="doc">
+        <iframe style="width:100%; height:100%; margin:0; padding:0; border:none;" src=""></iframe>
+    </main>
+
+    <footer>
+        <div class="subtext">Copyright , All Rights Reserved</div>
+    </footer>
+
+    <script>
+        let iframe  = document.querySelector("#doc iframe")
+        ,   index   = document.querySelector("#dgc");
+
+        body.classList.add("all-in-one");
+        index.onclick = (evt) => {
+            if(evt.target.href) { iframe.src = evt.target.href; }
+            evt.preventDefault();
+            iframe.focus();
+            };
+        iframe.focus();
+    </script>
+</body>
+</html>

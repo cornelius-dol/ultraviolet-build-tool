@@ -1,0 +1,10 @@
+{
+"lint" : {
+    "rules": {
+        "tags": [],
+        "include": [
+            "no-deprecated-deno-api"
+            ]
+        }
+    }
+}

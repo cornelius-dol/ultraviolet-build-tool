@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+    <title>Ultraviolet Build Tool</title>
+    <meta charset="utf-8">
+    <meta name="author" content="">
+    <link rel="stylesheet" type="text/css" href="style.css" media="screen,print">
+    <style>
+        body.inside-iframe :is(header, footer) {
+            display: none;
+            }
+    </style>
+</head>
+
+<body class="doc">
+    <script>
+        let body    = document.querySelector("body");
+        if(window.parent !== window) {
+            body.classList.add('inside-iframe');
+            }
+    </script>
+
+    <header>
+        <div class="title"><a href="index.html">Ultraviolet Build Tool</a></div>
+        <div class="subtitle">Developer Documentation</div>
+        <div class="subtext">Version 1.00, Produced 2026-06-07</div>
+        <div class="page-links"><span title="Previous Page (Arrow Left)"><a class='prev' href='UbtEngine.html'>prev</a></span> <span title="Next Page (Arrow Right)"><a class='next' href='+BDD.html'>next</a></span></div>
+    </header>
+
+    <main id="dgc">
+        <article class="doc">
+<h1 id="build-error-class">Build Error Class</h1><p>The Universal Build Tool error class defines an error with an error code and optional detail.</p><p><span class="status-stable">Module Status: </span></p>
+<h3 id="new-ubterror-cod-msg-dtl">new UbtError(cod,msg,dtl)</h3><p>Create a UbtError with the specified code, message, and optional detail.</p>
+<h3 id="wrap-err-dtl">wrap(err, dtl)</h3><p>Wraps an error into a <code>UbtError</code>, retaining the original call stack, allowing optional detail to be added. The error code is the name of the original error, the message is it&rsquo;s message or it string representation, and the optional properties to add to the new error.</p><p>NB: If the error is <em>already</em> a <code>UbtError</code> the same error is returned, with the optional detail appended (if any).</p>
+</article>
+
+    </main>
+
+    <footer>
+        <div class="subtext">Copyright , All Rights Reserved</div>
+        <div class="page-links"><span title="Previous Page (Arrow Left)"><a class='prev' href='UbtEngine.html'>prev</a></span> | <a href="">top</a> | <a href="index.html">index</a> | <span title="Next Page (Arrow Right)"><a class='next' href='+BDD.html'>next</a></span></div>
+    </footer>
+
+    <script>
+        setTimeout(() => {
+            document.querySelector("#dgc")?.focus();
+            },100);
+        document.onkeydown = (evt) => {
+            if(!evt.altKey && !evt.ctrlKey && !evt.metaKey && !evt.shiftKey) {
+                switch(evt.key) {
+                    case "ArrowLeft" : {
+                        let elm = document.querySelector("header .page-links .prev");
+                        if(elm) { location.href = elm.href; }
+                        evt.preventDefault();
+                        } break;
+                    case "ArrowRight" : {
+                        let elm = document.querySelector("header .page-links .next");
+                        if(elm) { location.href = elm.href; }
+                        evt.preventDefault();
+                        } break;
+                    }
+                }
+            };
+    </script>
+</body>
+</html>
