@@ -274,7 +274,7 @@ async function createArchive(arc,spcs,opts={}) {
 
     !opts.noLog && log(`Create Archive: ${arc}`);
 
-    let tmp     = await Deno.makeTempFile({ prefix: arc.nameBase, suffix: arc.nameExt })
+    let tmp     = fsInfo(arc.parent + arc.nameBase + "-" + ulid() + arc.nameExt)
     ,   args;
 
     deleteFiles(tmp,{ noLog: true });
@@ -307,12 +307,9 @@ async function createArchive(arc,spcs,opts={}) {
 
     deleteFiles(arc,{ noLog: true });
     if(opts.proguardFile) {
-        let tmp2 = fsInfo(tmp.path + ".jar");                                                                           // because ProGuard requires xxx.jar or will treat as a resource
-        !opts.noLog && (log(`. Rename To: ${tmp2}`));
-        copyFiles(tmp,tmp2,{ move: true, noLog: true });
-        !opts.noLog && (log(`. Obfuscate To: ${arc.path}`));
+        !opts.noLog && (log(`. Process ${tmp.name} to ${arc}`));
         await runJava(`${ctx.build.binFolder}proguard/ProGuard.jar`,[
-            "-injars"               , tmp2.path+"(!**/Z*)",
+            "-injars"               , tmp.path+"(!**/Z*)",
             `@${ctx.build.cfgFolder}ProGuard-GlobalOptions.txt`,
             `@${pgd}`,
             "-outjars"              , arc.path,
@@ -336,11 +333,11 @@ async function createArchive(arc,spcs,opts={}) {
             ...opts,
             });
         if(!opts.keepUnobfuscated) {
-            deleteFiles(tmp2,{ noLog: true });
+            deleteFiles(tmp,{ noLog: true });
             }
         }
     else {
-        !opts.noLog && log(`. Move ${tmp.name} to ${arc.path}`);
+        !opts.noLog && log(`. Move ${tmp.name} to ${arc}`);
         copyFiles(tmp,arc,{ move: true, noLog: true });
         }
     if(opts.deleteInputFiles && fillst.length) {
