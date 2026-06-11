@@ -23,7 +23,7 @@
     <header>
         <div class="title"><a href="index.html">Ultraviolet Build Tool</a></div>
         <div class="subtitle">Developer Documentation</div>
-        <div class="subtext">Version 1.00, Produced 2026-06-07</div>
+        <div class="subtext">Version 1.01, Produced 2026-06-11</div>
         <div class="page-links"><span title="Previous Page (Arrow Left)"><a class='prev' href='+UBT.html'>prev</a></span> <span title="Next Page (Arrow Right)"><a class='next' href='UbtEngine.html'>next</a></span></div>
     </header>
 
@@ -1218,6 +1218,18 @@ let val = ubt.deepProp(obj,&quot;a.b.c&quot;,&quot;Default&quot;);      // =&gt;
   </tbody>
 </table></div><p>Example:</p>
 <pre><code>ubt.resolveTemplate(&quot;{{prjFolder}}x/{{special}}/z&quot;,{ ...ctx, special: &quot;y&quot; }); // =&gt; /path/to/project/x/y/z
+</code></pre>
+<h3 id="function-ulid">ulid()<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Create a ULID (Unique Lexographically-sortable ID).</p><p>Usefule for generating temporary filenames, and similar.</p>
+<div class="table"><table>
+  <tbody>
+    <tr>
+      <td>=&gt; </td>
+      <td>The generated UlID.</td>
+    </tr>
+  </tbody>
+</table></div><p>Example:</p>
+<pre><code>ubt.ulid();     // =&gt; &quot;01KTW2735GEQH18JWYXA9NSNDY&quot;
 </code></pre>
 <h3 id="function-uuidv4-b64">uuidV4(b64)<a href="index.html">index</a><a href="#top">top</a></h3>
 <p>Create a V4 UUID.</p>
