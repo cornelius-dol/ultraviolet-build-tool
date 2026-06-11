@@ -5,18 +5,25 @@
   -adaptclassstrings
   -dontoptimize
   -dontusemixedcaseclassnames
+  -dontskipnonpubliclibraryclasses
   -forceprocessing
 
   -keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable
 
   -libraryjars <JDKFDR>/jmods/java.base.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.compiler.jmod(!**.jar;!module-info.class)
   -libraryjars <JDKFDR>/jmods/java.datatransfer.jmod(!**.jar;!module-info.class)
   -libraryjars <JDKFDR>/jmods/java.desktop.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.instrument.jmod(!**.jar;!module-info.class)
   -libraryjars <JDKFDR>/jmods/java.logging.jmod(!**.jar;!module-info.class)
   -libraryjars <JDKFDR>/jmods/java.management.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.management.rmi.jmod(!**.jar;!module-info.class)
   -libraryjars <JDKFDR>/jmods/java.naming.jmod(!**.jar;!module-info.class)
   -libraryjars <JDKFDR>/jmods/java.net.http.jmod(!**.jar;!module-info.class)
   -libraryjars <JDKFDR>/jmods/java.prefs.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.rmi.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.scripting.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/java.se.jmod(!**.jar;!module-info.class)
   -libraryjars <JDKFDR>/jmods/java.security.jgss.jmod(!**.jar;!module-info.class)
   -libraryjars <JDKFDR>/jmods/java.security.sasl.jmod(!**.jar;!module-info.class)
   -libraryjars <JDKFDR>/jmods/java.smartcardio.jmod(!**.jar;!module-info.class)
@@ -25,6 +32,55 @@
   -libraryjars <JDKFDR>/jmods/java.transaction.xa.jmod(!**.jar;!module-info.class)
   -libraryjars <JDKFDR>/jmods/java.xml.crypto.jmod(!**.jar;!module-info.class)
   -libraryjars <JDKFDR>/jmods/java.xml.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.accessibility.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.attach.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.charsets.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.compiler.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.crypto.cryptoki.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.crypto.ec.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.crypto.mscapi.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.dynalink.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.editpad.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.hotspot.agent.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.httpserver.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.incubator.foreign.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.incubator.vector.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.internal.ed.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.internal.jvmstat.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.internal.le.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.internal.opt.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.internal.vm.ci.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.internal.vm.compiler.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.internal.vm.compiler.management.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.jartool.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.javadoc.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.jcmd.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.jconsole.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.jdeps.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.jdi.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.jdwp.agent.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.jfr.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.jlink.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.jpackage.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.jshell.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.jsobject.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.jstatd.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.localedata.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.management.agent.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.management.jfr.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.management.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.naming.dns.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.naming.rmi.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.net.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.nio.mapmode.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.random.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.sctp.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.security.auth.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.security.jgss.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.unsupported.desktop.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.unsupported.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.xml.dom.jmod(!**.jar;!module-info.class)
+  -libraryjars <JDKFDR>/jmods/jdk.zipfs.jmod(!**.jar;!module-info.class)
 
   -dontnote module-info
   -dontwarn javax.annotation.**
@@ -34,20 +90,24 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
   -keep class *_.**            { *** *; *** *(...); }                                                                   # already obfuscated code from a library JAR
-  -keep class _*.**            { *** *; *** *(...); }                                                                   # already obfuscated code from a library JAR
-  -keep class _*_.**           { *** *; *** *(...); }                                                                   # already obfuscated code from a library JAR
-
   -dontnote   *_.**
+
+  -keep class _*.**            { *** *; *** *(...); }                                                                   # already obfuscated code from a library JAR
   -dontnote   _*.**
+
+  -keep class _*_.**           { *** *; *** *(...); }                                                                   # already obfuscated code from a library JAR
   -dontnote   _*_.**
+
+  -keep class **._.**          { *** *; *** *(...); }                                                                   # already obfuscated code from a library JAR
+  -dontnote   **._.**
 
 # ----------------------------------------------------------------------------------------------------------------------
 # KEEP: DYNAMIC CALLBACKS
 # ----------------------------------------------------------------------------------------------------------------------
 
-  -keepclassmembernames,includedescriptorclasses class * {
-      public *** cbk_*(...);                                                                                            # new convention
-      public *** callback_*(...);                                                                                       # old convention
+  -keepclassmembers class ** {
+      *** cbk_*(...);                                                                                                   # new convention
+      *** callback_*(...);                                                                                              # old convention
       }
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -66,7 +126,7 @@
       !private *;
       }
 
-  -keepclassmembers class * implements **.ProguardKeep_SFI {
+  -keepclassmembers class ** implements **.ProguardKeep_SFI {
       # Implementing this interface causes the class's static final integer values to be kept. This allows CodeTextMap and
       # TextCodeMap to operate on a class which is otherwise obfuscated.
       static final  int                       ?_*;
@@ -79,7 +139,7 @@
 # KEEP: JAVA ENUMERATION MEMBERS, WHICH ARE ALWAYS ACCESSED BY REFLECTION
 # ----------------------------------------------------------------------------------------------------------------------
 
-  -keepclassmembers class * extends java.lang.Enum {
+  -keepclassmembers class ** extends java.lang.Enum {
       public static **[] values();
       public static ** valueOf(java.lang.String);
       }
