@@ -31,6 +31,7 @@ const   CONSOLE_WRAP        = 120
 ,       FOLDER              = true
 ,       INDENT              = true
 ,       PATH_DELIM          = stdPath.DELIMITER || stdPath.delimiter                                                    // fallback is for older Deno releases
+,       ULID_B32            = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
 
 const   pipeline            = {}
 
@@ -1509,6 +1510,25 @@ function prompt(...args) {
 exported(resolveTemplate);
 function resolveTemplate(tpt,ctx,fbk) {
     return tpt.replace(/[{][{][^{}]*[}][}]/g, (mat) => deepProp(ctx,mat.slice(2,-2),fbk ?? mat));
+    }
+
+/// Create a ULID (Unique Lexographically-sortable ID).
+///
+/// Usefule for generating temporary filenames, and similar.
+///
+/// ------------------- | ----------------------------------------------------------------------------------------------
+/// =>                  | The generated UlID.
+///
+/// Example:
+///
+///     ubt.ulid();     // => "01KTW2735GEQH18JWYXA9NSNDY"
+exported(ulid);
+function ulid() {
+    let ts  = Date.now();
+    let out = "";
+    for (let xa = 9; xa >= 0; xa -= 1) { out  = ULID_B32[ts & 31] + out; ts = Math.floor(ts / 32); }
+    for (let xa = 0; xa < 16; xa += 1) { out += ULID_B32[Math.floor(Math.random() * 32)];          }
+    return out;
     }
 
 /// Create a V4 UUID.
