@@ -907,13 +907,13 @@ function buildSequence(bldfnc,prqfncs) {
     }
 
 /// Copy one or more build artifacts to the folders listed in file `!UbtBuild.target-folder`. Each line in the file is
-/// is either: (a) a comment starting with `#`, `*`, or `//*/`; (b) a source group enclosed in square brackets, e.g.
-/// `bin/`; or (c) a target folder template; or (d) A temporary target folder template starting with an empty-comment
-/// marker, `/**/`.
+/// is either: (a) a comment starting with `#`, `*`, or `//*/`; (b) a source group or filename enclosed in square
+/// brackets, e.g. `bin/`; or (c) a target folder template; or (d) A temporary target folder template starting with an
+/// empty-comment marker, `/**/`.
 ///
 /// ------------------- | ----------------------------------------------------------------------------------------------
 /// srcfdr              | The folder from which to copy, and to use in source group matching.
-/// glb                 | The filename glob pattern to match. **NB: This pattern will be deleted from each target!**
+/// filglb              | The filename glob pattern to match. **NB: This pattern will be deleted from each target!**
 /// ctx                 | The build context, against which substitutions in the target folders are resolved.
 /// opts                | Copy options.
 /// . noLog             | Whether to suppress progress messages. Default: `false`.
@@ -921,33 +921,42 @@ function buildSequence(bldfnc,prqfncs) {
 /// . targetClear       | Indicates that the target folder should first be cleared. Defaults to `true`, as this is usually what is needed.
 /// =>                  | The current sequence if getting, or a reference to this API if setting.
 ///
-/// Groups are matched to a source path with ends with the group name.
+/// Groups are matched to a source folder or source folder + file glob using endsWith(). The latter allows specific
+/// artifacts to be copied to separate projects in a project which, for example, produces multiple binaries which are
+/// consumed by disparate projects. So if the artifact glob is "Xyz.*" the group must also be "folder/Xyz*" or "Xyz.*".
 ///
 /// Template substitutions are represented by `{{}}some.name}}` and reference values in the supplied context. Custom
 /// values can be easily added using the spread syntax `{ ...ctx, custom: "X" }`.
 ///
-/// This is purely a convenience for developers; if a target folder it missing it is reported, but does not fail the
-/// build as different developers may or may not have particular targets on their system.
+/// This is function purely a convenience for developers; if a target folder it missing it is reported, but does not
+/// fail the build, as different developers may or may not have particular targets on their system.
 ///
 /// Example Build Script:
 ///
 ///     ubt.heading2("Copy Artifacts to Other Projects");
-///     ubt.copyArtifacts(khufdr+"bin/","**"                    ,{ ...ctx });
-///     ubt.copyArtifacts(khufdr+"nls/","**/RolePlay?(-??).json",{ ...ctx });
+///     ubt.copyArtifacts(khufdr+"bin/","**"                    ,ctx);
+///     ubt.copyArtifacts(khufdr+"nls/","**/RolePlay?(-??).json",ctx);
+///     ubt.copyArtifacts(khufdr+"jar/","RolePlay-?(-*).jar"    ,ctx);
+///     ubt.copyArtifacts(khufdr+"jar/","Utility.jar"           ,ctx);
 ///
 /// Example Target Folder File:
 ///
 ///     [bin/]
-///         {{}}cdeFolder}}rlp400v3/src/web/rlpdr/bin/
-///     ##  {{}}cdeFolder}}skdme/src/web/staff
+///         {{}}cdeFolder}}rlp3/src/web/rlpdr/bin/
 ///     ##  {{}}cdeFolder}}v360/website/rlpdr/bin/
 ///
+///     [jar/RolePlay-?(-*).jar]
+///         {{}}cdeFolder}}rlp3/src/cfg/nls/
+///     ##  {{}}cdeFolder}}v360/config/nls/
+///
+///     [jar/Utility.jar]
+///         {{}}cdeFolder}}rlp3/src/cfg/nls/
+///
 ///     [nls/]
-///         {{}}cdeFolder}}rlp400v3/src/cfg/nls/
-///     ##  {{}}cdeFolder}}skdme/src/cfg/nls/
+///         {{}}cdeFolder}}rlp3/src/cfg/nls/
 ///     ##  {{}}cdeFolder}}v360/config/nls/
 exported(copyArtifacts);
-function copyArtifacts(srcfdr,glb,ctx,opts={}) {
+function copyArtifacts(srcfdr,filglb,ctx,opts={}) {
     srcfdr = fsInfo(srcfdr);
     let cpylst  = (opts.targetList ? fsInfo(opts.targetList) : fsInfo(ctx.prjFolder))
     ,   tottgt  = 0
@@ -957,7 +966,7 @@ function copyArtifacts(srcfdr,glb,ctx,opts={}) {
 
     cpylst.isFolder && (cpylst = fsInfo(cpylst,"!UbtBuild.target-folder"));
 
-    if(!opts.noLog) { log(`Copy artifacts in ${subpath(srcfdr,ctx.prjFolder)}${glb} to targets in ${subpath(cpylst,ctx.prjFolder)}:`); }
+    if(!opts.noLog) { log(`Copy artifacts in ${subpath(srcfdr,ctx.prjFolder)}${filglb} to targets in ${subpath(cpylst,ctx.prjFolder)}:`); }
 
     readFileText(cpylst)
     . split(/[\n]/)
@@ -966,9 +975,14 @@ function copyArtifacts(srcfdr,glb,ctx,opts={}) {
         lin.startsWith("/**/") && (lin = lin.slice(4).trim());
         if(lin && !lin.startsWith("//*/") &&  !lin.match(/^(#|\*)/)) {                                                  // not a comment line (allowing for our special //*/ commenting of /**/
             if(lin.startsWith("[") && lin.endsWith("]")) {                                                              // source path group
-                lin = lin.slice(1,-1).trim();
-                if(srcfdr.path.endsWith(lin)) { add = true;  tgtfdrs.length=0; }                                        // correct to reset tgtfdrs
-                else                          { add = false;                   }
+                let grp = lin.slice(1,-1).trim();
+                if(srcfdr.path.endsWith(grp) || (srcfdr.path + filglb).endsWith(grp)) {
+                    tgtfdrs.length=0;                                                                                   // correct to reset tgtfdrs
+                    add = true;
+                    }
+                else {
+                    add = false;
+                    }
                 }
             else if(add) {
                 lin = lin.replaceAll("\\","/");
@@ -997,11 +1011,11 @@ function copyArtifacts(srcfdr,glb,ctx,opts={}) {
             }
         else try {
             if(opts.targetClear) {
-                log(`. . Delete ${tgtfdr}${glb}`);
-                deleteFiles(findFiles(tgtfdr,glb));
+                log(`. . Delete ${tgtfdr}${filglb}`);
+                deleteFiles(findFiles(tgtfdr,filglb));
                 }
 
-            let srcfils = findFiles(srcfdr,glb);
+            let srcfils = findFiles(srcfdr,filglb);
             for(let srcfil of srcfils) {
                 let subpth = subpath(srcfil,srcfdr);
                 log(`. . ${subpth}`);
