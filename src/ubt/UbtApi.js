@@ -277,6 +277,7 @@ async function createArchive(arc,spcs,opts={}) {
     let tmp     = fsInfo(arc.parent + arc.nameBase + "-" + ulid() + arc.nameExt)
     ,   args;
 
+    createFolders(tmp.parent);
     deleteFiles(tmp,{ noLog: true });
     if(opts.manifestFile) {
         if(!opts.noLog) { log(`. Manifest: ${subpath(opts.manifestFile)}`); }
