@@ -23,7 +23,7 @@
     <header>
         <div class="title"><a href="index.html">Ultraviolet Build Tool</a></div>
         <div class="subtitle">Developer Documentation</div>
-        <div class="subtext">Version 1.01, Produced 2026-06-11</div>
+        <div class="subtext">Version 1.02, Produced 2026-06-12</div>
         <div class="page-links"><span title="Previous Page (Arrow Left)"><a class='prev' href='+UBT.html'>prev</a></span> <span title="Next Page (Arrow Right)"><a class='next' href='UbtEngine.html'>next</a></span></div>
     </header>
 
@@ -750,8 +750,8 @@
     </tr>
   </tbody>
 </table></div><p>Prequisite functions are executed before the specified build function and allow other build actions or functions to always be executed before any specific build action. This can allow, for example, all files to be recompiled before packaging them into a JAR file. Note that <em>any</em> function exported from the build script can be set as a prereq.</p>
-<h3 id="function-copyartifacts-srcfdr-glb-ctx-opts">copyArtifacts(srcfdr,glb,ctx,opts={})<a href="index.html">index</a><a href="#top">top</a></h3>
-<p>Copy one or more build artifacts to the folders listed in file <code>!UbtBuild.target-folder</code>. Each line in the file is is either: (a) a comment starting with <code>#</code>, <code>*</code>, or <code>//*/</code>; (b) a source group enclosed in square brackets, e.g. <code>bin/</code>; or (c) a target folder template; or (d) A temporary target folder template starting with an empty-comment marker, <code>/**/</code>.</p>
+<h3 id="function-copyartifacts-srcfdr-filglb-ctx-opts">copyArtifacts(srcfdr,filglb,ctx,opts={})<a href="index.html">index</a><a href="#top">top</a></h3>
+<p>Copy one or more build artifacts to the folders listed in file <code>!UbtBuild.target-folder</code>. Each line in the file is is either: (a) a comment starting with <code>#</code>, <code>*</code>, or <code>//*/</code>; (b) a source group or filename enclosed in square brackets, e.g. <code>bin/</code>; or (c) a target folder template; or (d) A temporary target folder template starting with an empty-comment marker, <code>/**/</code>.</p>
 <div class="table"><table>
   <tbody>
     <tr>
@@ -759,7 +759,7 @@
       <td>The folder from which to copy, and to use in source group matching.</td>
     </tr>
     <tr>
-      <td>glb </td>
+      <td>filglb </td>
       <td>The filename glob pattern to match. <strong>NB: This pattern will be deleted from each target!</strong></td>
     </tr>
     <tr>
@@ -787,19 +787,26 @@
       <td>The current sequence if getting, or a reference to this API if setting.</td>
     </tr>
   </tbody>
-</table></div><p>Groups are matched to a source path with ends with the group name.</p><p>Template substitutions are represented by <code>{{some.name}}</code> and reference values in the supplied context. Custom values can be easily added using the spread syntax <code>{ ...ctx, custom: &quot;X&quot; }</code>.</p><p>This is purely a convenience for developers; if a target folder it missing it is reported, but does not fail the build as different developers may or may not have particular targets on their system.</p><p>Example Build Script:</p>
+</table></div><p>Groups are matched to a source folder or source folder + file glob using endsWith(). The latter allows specific artifacts to be copied to separate projects in a project which, for example, produces multiple binaries which are consumed by disparate projects. So if the artifact glob is &ldquo;Xyz.*&rdquo; the group must also be &ldquo;folder/Xyz*&rdquo; or &ldquo;Xyz.*&rdquo;.</p><p>Template substitutions are represented by <code>{{some.name}}</code> and reference values in the supplied context. Custom values can be easily added using the spread syntax <code>{ ...ctx, custom: &quot;X&quot; }</code>.</p><p>This is function purely a convenience for developers; if a target folder it missing it is reported, but does not fail the build, as different developers may or may not have particular targets on their system.</p><p>Example Build Script:</p>
 <pre><code>ubt.heading2(&quot;Copy Artifacts to Other Projects&quot;);
-ubt.copyArtifacts(khufdr+&quot;bin/&quot;,&quot;**&quot;                    ,{ ...ctx });
-ubt.copyArtifacts(khufdr+&quot;nls/&quot;,&quot;**/RolePlay?(-??).json&quot;,{ ...ctx });
+ubt.copyArtifacts(khufdr+&quot;bin/&quot;,&quot;**&quot;                    ,ctx);
+ubt.copyArtifacts(khufdr+&quot;nls/&quot;,&quot;**/RolePlay?(-??).json&quot;,ctx);
+ubt.copyArtifacts(khufdr+&quot;jar/&quot;,&quot;RolePlay-?(-*).jar&quot;    ,ctx);
+ubt.copyArtifacts(khufdr+&quot;jar/&quot;,&quot;Utility.jar&quot;           ,ctx);
 </code></pre><p>Example Target Folder File:</p>
 <pre><code>[bin/]
-    {{cdeFolder}}rlp400v3/src/web/rlpdr/bin/
-##  {{cdeFolder}}skdme/src/web/staff
+    {{cdeFolder}}rlp3/src/web/rlpdr/bin/
 ##  {{cdeFolder}}v360/website/rlpdr/bin/
 
+[jar/RolePlay-?(-*).jar]
+    {{cdeFolder}}rlp3/src/cfg/nls/
+##  {{cdeFolder}}v360/config/nls/
+
+[jar/Utility.jar]
+    {{cdeFolder}}rlp3/src/cfg/nls/
+
 [nls/]
-    {{cdeFolder}}rlp400v3/src/cfg/nls/
-##  {{cdeFolder}}skdme/src/cfg/nls/
+    {{cdeFolder}}rlp3/src/cfg/nls/
 ##  {{cdeFolder}}v360/config/nls/
 </code></pre>
 <h3 id="function-copyfiles-srcs-tgts-opts">copyFiles(srcs,tgts,opts={})<a href="index.html">index</a><a href="#top">top</a></h3>
