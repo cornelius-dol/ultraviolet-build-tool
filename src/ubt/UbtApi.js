@@ -966,8 +966,12 @@ function copyArtifacts(srcfdr,filglb,ctx,opts={}) {
     ,   tgtfdrs = [];
 
     cpylst.isFolder && (cpylst = fsInfo(cpylst,"!UbtBuild.target-folder"));
+    if(!cpylst.exists) {
+        if(!opts.noLog) { log(`Copy artifacts skipped because target file '${subpath(cpylst,ctx.prjFolder)}' doesn't exist`); }
+        return;
+        }
 
-    if(!opts.noLog) { log(`Copy artifacts in ${subpath(srcfdr,ctx.prjFolder)}${filglb} to targets in ${subpath(cpylst,ctx.prjFolder)}:`); }
+    if(!opts.noLog) { log(`Copy artifacts in ${subpath(srcfdr,ctx.prjFolder)}${filglb} to targets in ${subpath(cpylst,ctx.prjFolder)}`); }
 
     readFileText(cpylst)
     . split(/[\n]/)
