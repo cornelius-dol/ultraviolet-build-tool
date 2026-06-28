@@ -164,7 +164,8 @@ async function init() {
     sdkfdr = api.fsInfo(apxfdr,"sdk/"),
     bldfdr = import.meta.url.slice(import.meta.url.indexOf("://")+3)
     if(/^\/[A-Z]:\//.test(bldfdr)) { bldfdr = bldfdr.slice(1); }                                                        // stupid Windows FS -- check for /C:/.
-    bldfdr = api.fsInfo(bldfdr,"../../");
+    bldfdr = bldfdr.slice(0,bldfdr.lastIndexOf("/")+1).replace(/(src\/ubt\/|ubt\/$)/,"");
+    bldfdr = api.fsInfo(bldfdr);
 
     Deno.chdir(apxfdr.path);
     Object.assign(ctx,{
