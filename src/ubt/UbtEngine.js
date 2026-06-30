@@ -47,7 +47,7 @@ try {
             }
 
         SetDerivedFolders: {
-            ctx.build.bddFolder   ??= api.fsInfo(ctx.bldFolder  ,"bdd/"),
+            ctx.build.bddFolder   ??= api.fsInfo(ctx.bldFolder  ,"src/bdd/"),
             ctx.build.binFolder   ??= api.fsInfo(ctx.bldFolder  ,"bin/"),
             ctx.build.cfgFolder   ??= api.fsInfo(ctx.bldFolder  ,"cfg/"),
             ctx.build.libFolder   ??= api.fsInfo(ctx.bldFolder  ,"lib/"),
