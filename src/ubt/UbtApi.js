@@ -604,15 +604,11 @@ async function runJavaTests(fils,args=[],opts={}) {
             return (fsi.exists && fsi.isFile ? fsi : null);
             }));
         for(let fil of fils) {
+            let cls = subpath(fil.parent + fil.nameBase,srcfdr).replaceAll(/[\\/]/gui,".");
             log();
-            heading2(`Run Tests for ${subpath(fil)}`);
-            // deno-lint-ignore no-await-in-loop
+            heading2(`Run Tests for ${cls}`);
             await compileJava(fil,Object.create({},opts,{ noLog: true }));
-            // deno-lint-ignore no-await-in-loop
-            await runJava(fil,args,{
-                noLog                   : true,
-                ...opts,
-                });
+            await runJava(cls,args,{ noLog: true, ...opts });
             }
         }
     catch(err) {
@@ -718,7 +714,7 @@ async function runJsTests(fils,args=[],opts={}) {
         tmpfil = await Deno.makeTempFile({ prefix: "UBT-ImportMap-", suffix: ".json", });
         for(let fil of fils) {
             log();
-            heading2(`Run Tests for ${subpath(fil)}`);
+            heading2(`Run Tests for ${subpath(fil,srcpth)}`);
             writeFileText(tmpfil,JSON.stringify({
                 "imports": Object.assign({
                     "/$apx/" : `file:///${ctx.apxFolder}`,

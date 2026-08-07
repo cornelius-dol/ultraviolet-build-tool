@@ -22,7 +22,7 @@ let ubt = new UbtApi();
 
 batch("The UBT API offers numerous utility functions to facilitate builds.",{
     "ulid produces ULIDs": {
-        [`Base32 (${ubt.ulid()})`]                          : () => { valEQ(24,ubt.ulid().length); },
+        [`Base32 (${ubt.ulid()})`]                          : () => { valEQ(26,ubt.ulid().length); },
         },
     "uuidV4 produces version 4 UUIDs": {
         [`In HEX (${ubt.uuidV4()})`]                        : () => { valEQ(36,ubt.uuidV4().length); },
